@@ -1,0 +1,26 @@
+.navbar
+{
+    overflow: hidden;
+    background-color: black;
+    position: sticky;
+    top: 0; 
+    z-index: 9999;
+}
+
+a
+{
+    float: left;
+    display: block;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+    color: white;
+    font-size: xxx-large;
+    font-family: monospace;
+}
+
+a:hover
+{
+    background-color: gray;
+}
+
