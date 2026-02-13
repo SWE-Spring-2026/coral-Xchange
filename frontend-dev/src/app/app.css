@@ -1,0 +1,38 @@
+/* ===== Navbar Container ===== */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 8px;
+
+    background-image: linear-gradient(#0000b5, #0F1563);
+}
+
+
+.navbar nav {
+    display: flex;
+    gap: 16px;
+}
+
+/* ===== Links ===== */
+.navbar a {
+    position: relative;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    color: white;
+    transition: all 0.3s ease;
+    padding: 6px 0;
+}
+
+/* Hover effect */
+.navbar a:hover {
+    color: black;
+}
+
+

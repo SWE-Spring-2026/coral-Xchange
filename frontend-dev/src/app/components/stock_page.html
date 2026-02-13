@@ -1,0 +1,10 @@
+<body>
+    <h1>HELLO FROM STOCKS PAGE</h1>
+
+    @for(post of posts; track post.id)
+    {
+        <li>Fetched id: {{post.id}}</li>
+        <li>Fetched title: {{post.title}}</li>
+        <li>Fetched body: {{post.body}}</li>
+    }
+</body>
