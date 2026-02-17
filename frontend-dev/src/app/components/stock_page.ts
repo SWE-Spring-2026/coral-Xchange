@@ -1,7 +1,7 @@
 import { Api } from "../api";
 import { Component, inject, Injectable, OnInit } from "@angular/core";
 
-@Injectable({providedIn: 'root'})
+//@Injectable({providedIn: 'root'}) //Components are not services.
 
 @Component 
 ({
