@@ -1,14 +1,13 @@
 import {
   isPlatformBrowser
-} from "./chunk-IU626UON.js";
+} from "./chunk-4JE53JAU.js";
 import {
-  ElementRef,
   Injectable,
   PLATFORM_ID,
   inject,
   setClassMetadata,
   ɵɵdefineInjectable
-} from "./chunk-BAFPL46I.js";
+} from "./chunk-UJWCGW7T.js";
 
 // node_modules/@angular/cdk/fesm2022/_platform-chunk.mjs
 var hasV8BreakIterator;
@@ -47,20 +46,6 @@ var Platform = class _Platform {
     }]
   }], () => [], null);
 })();
-
-// node_modules/@angular/cdk/fesm2022/_element-chunk.mjs
-function coerceNumberProperty(value, fallbackValue = 0) {
-  if (_isNumberValue(value)) {
-    return Number(value);
-  }
-  return arguments.length === 2 ? fallbackValue : 0;
-}
-function _isNumberValue(value) {
-  return !isNaN(parseFloat(value)) && !isNaN(Number(value));
-}
-function coerceElement(elementOrRef) {
-  return elementOrRef instanceof ElementRef ? elementOrRef.nativeElement : elementOrRef;
-}
 
 // node_modules/@angular/cdk/fesm2022/_scrolling-chunk.mjs
 var RtlScrollAxisType;
@@ -121,10 +106,8 @@ function getRtlScrollAxisType() {
 
 export {
   Platform,
-  coerceNumberProperty,
-  coerceElement,
   RtlScrollAxisType,
   supportsScrollBehavior,
   getRtlScrollAxisType
 };
-//# sourceMappingURL=chunk-JWH5T275.js.map
+//# sourceMappingURL=chunk-33CR23BK.js.map

@@ -1,6 +1,6 @@
 import {
   PlatformLocation
-} from "./chunk-PXPPZ6AQ.js";
+} from "./chunk-KTM3EODC.js";
 import {
   ApplicationRef,
   Attribute,
@@ -61,7 +61,7 @@ import {
   ɵɵinject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-BAFPL46I.js";
+} from "./chunk-UJWCGW7T.js";
 
 // node_modules/@angular/common/fesm2022/_location-chunk.mjs
 function joinWithSlash(start, end) {
@@ -4357,4 +4357,4 @@ export {
   isPlatformBrowser,
   ViewportScroller
 };
-//# sourceMappingURL=chunk-IU626UON.js.map
+//# sourceMappingURL=chunk-4JE53JAU.js.map
