@@ -1,15 +1,18 @@
 import {
   FocusMonitor,
-  _CdkPrivateStyleLoader,
   _animationsDisabled,
-  _getEventTarget,
   isFakeMousedownFromScreenReader,
+<<<<<<< HEAD
   isFakeTouchstartFromScreenReader,
   normalizePassiveListenerOptions
 } from "./chunk-FXRPFLZQ.js";
+=======
+  isFakeTouchstartFromScreenReader
+} from "./chunk-HH2NW4CQ.js";
+>>>>>>> main
 import {
-  Platform,
   coerceElement
+<<<<<<< HEAD
 } from "./chunk-G2EMNODZ.js";
 import {
   BidiModule
@@ -18,6 +21,26 @@ import "./chunk-72VIXCGE.js";
 import "./chunk-FLRH3656.js";
 import "./chunk-VJTJSOHB.js";
 import "./chunk-SRVYEBZG.js";
+=======
+} from "./chunk-2DGIUY6A.js";
+import {
+  _CdkPrivateStyleLoader
+} from "./chunk-EZAJSNGE.js";
+import "./chunk-5HNCQ4G3.js";
+import "./chunk-UP7ZVVYA.js";
+import {
+  _getEventTarget,
+  normalizePassiveListenerOptions
+} from "./chunk-JRPL2DZH.js";
+import {
+  Platform
+} from "./chunk-33CR23BK.js";
+import "./chunk-4JE53JAU.js";
+import "./chunk-KTM3EODC.js";
+import {
+  BidiModule
+} from "./chunk-42KRH5RY.js";
+>>>>>>> main
 import {
   ChangeDetectionStrategy,
   Component,
@@ -52,7 +75,11 @@ import {
   ɵɵdomElementStart,
   ɵɵprojection,
   ɵɵprojectionDef
+<<<<<<< HEAD
 } from "./chunk-TPRLJKZ4.js";
+=======
+} from "./chunk-UJWCGW7T.js";
+>>>>>>> main
 
 // node_modules/@angular/material/fesm2022/_ripple-chunk.mjs
 var RippleState;

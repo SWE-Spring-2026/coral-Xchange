@@ -1,4 +1,10 @@
 import {
+  CdkScrollable,
+  CdkScrollableModule,
+  ScrollDispatcher,
+  ViewportRuler
+} from "./chunk-JHIENLP7.js";
+import {
   ESCAPE,
   FocusMonitor,
   FocusTrapFactory,
@@ -6,6 +12,7 @@ import {
   _animationsDisabled,
   coerceBooleanProperty,
   hasModifierKey
+<<<<<<< HEAD
 } from "./chunk-FXRPFLZQ.js";
 import {
   CdkScrollable,
@@ -25,6 +32,25 @@ import "./chunk-72VIXCGE.js";
 import "./chunk-FLRH3656.js";
 import "./chunk-VJTJSOHB.js";
 import "./chunk-SRVYEBZG.js";
+=======
+} from "./chunk-HH2NW4CQ.js";
+import {
+  coerceNumberProperty
+} from "./chunk-2DGIUY6A.js";
+import "./chunk-EZAJSNGE.js";
+import "./chunk-5HNCQ4G3.js";
+import "./chunk-UP7ZVVYA.js";
+import "./chunk-JRPL2DZH.js";
+import {
+  Platform
+} from "./chunk-33CR23BK.js";
+import "./chunk-4JE53JAU.js";
+import "./chunk-KTM3EODC.js";
+import {
+  BidiModule,
+  Directionality
+} from "./chunk-42KRH5RY.js";
+>>>>>>> main
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -82,7 +108,11 @@ import {
   ɵɵrestoreView,
   ɵɵstyleProp,
   ɵɵviewQuery
+<<<<<<< HEAD
 } from "./chunk-TPRLJKZ4.js";
+=======
+} from "./chunk-UJWCGW7T.js";
+>>>>>>> main
 
 // node_modules/@angular/material/fesm2022/sidenav.mjs
 var _c0 = ["*"];

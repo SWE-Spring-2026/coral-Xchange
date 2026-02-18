@@ -1,10 +1,14 @@
 <!-- rendered html for app 
 -->
-  <div class="navbar">
-    <nav> 
-      <a routerLink="/" routerLinkActive="active">Home</a>
-      <a routerLink="/stocks" routerLinkActive="active">Stocks</a>
-    </nav>
+<mat-toolbar class="navbar">
+  <div class="nav-left">
+      <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+      <a mat-button routerLink="/stocks" routerLinkActive="active">Stocks</a>
   </div>
-  <router-outlet></router-outlet>
+  <span class="spacer"></span>
+  <a mat-icon-button class="profile-icon" routerLink="/user-profile" routerLinkActive="active-icon" aria-label="User Profile">
+    <mat-icon>account_circle</mat-icon>
+  </a>
+</mat-toolbar>
+<router-outlet></router-outlet>
 

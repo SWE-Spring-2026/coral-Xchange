@@ -1,0 +1,20 @@
+:host {
+    display: block;
+    padding: 32px 16px;
+    background: #f8fafc;
+    min-height: calc(100vh - 64px);
+}
+
+.page {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.profile-header button {
+    font-size: 18px;
+    font-weight: 600;
+}

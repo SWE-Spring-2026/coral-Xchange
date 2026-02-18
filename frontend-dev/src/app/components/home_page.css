@@ -1,4 +1,4 @@
-body {
+:host {
     font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
     background-color: #f8fafc;
     color: #1e293b;
