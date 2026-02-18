@@ -6,25 +6,25 @@ import {
   _animationsDisabled,
   coerceBooleanProperty,
   hasModifierKey
-} from "./chunk-YNK5FAO2.js";
+} from "./chunk-FXRPFLZQ.js";
 import {
   CdkScrollable,
   CdkScrollableModule,
   ScrollDispatcher,
   ViewportRuler
-} from "./chunk-T5SJT77Y.js";
+} from "./chunk-QJJ2MZTH.js";
 import {
   Platform,
   coerceNumberProperty
-} from "./chunk-JWH5T275.js";
+} from "./chunk-G2EMNODZ.js";
 import {
   BidiModule,
   Directionality
-} from "./chunk-IG4BVY3L.js";
-import "./chunk-2ZGJXKL4.js";
-import "./chunk-MNVJSELG.js";
-import "./chunk-IU626UON.js";
-import "./chunk-PXPPZ6AQ.js";
+} from "./chunk-QKZRMRSP.js";
+import "./chunk-72VIXCGE.js";
+import "./chunk-FLRH3656.js";
+import "./chunk-VJTJSOHB.js";
+import "./chunk-SRVYEBZG.js";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -82,7 +82,7 @@ import {
   ɵɵrestoreView,
   ɵɵstyleProp,
   ɵɵviewQuery
-} from "./chunk-BAFPL46I.js";
+} from "./chunk-TPRLJKZ4.js";
 
 // node_modules/@angular/material/fesm2022/sidenav.mjs
 var _c0 = ["*"];
