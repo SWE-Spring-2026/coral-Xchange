@@ -1,6 +1,10 @@
 import {
   BidiModule
+<<<<<<< HEAD
+} from "./chunk-QKZRMRSP.js";
+=======
 } from "./chunk-42KRH5RY.js";
+>>>>>>> main
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,7 +24,11 @@ import {
   ɵɵdomElementStart,
   ɵɵprojection,
   ɵɵprojectionDef
+<<<<<<< HEAD
+} from "./chunk-TPRLJKZ4.js";
+=======
 } from "./chunk-UJWCGW7T.js";
+>>>>>>> main
 
 // node_modules/@angular/material/fesm2022/card.mjs
 var _c0 = ["*"];

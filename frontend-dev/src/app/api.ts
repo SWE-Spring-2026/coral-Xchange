@@ -6,13 +6,21 @@ import { Observable } from 'rxjs';
 
 export class Api {
   // using testing api for setting up api calls
-  private url = 'https://jsonplaceholder.typicode.com';
+  private url = import.meta.env.NG_APP_PUBLIC_STOCKDATA_URL;
+  private key = import.meta.env.NG_APP_PUBLIC_STOCKDATA_KEY;
 
   // constructor 
   private http = inject(HttpClient);
 
-  // test api call
-  getPosts(): Observable<any> {
-    return this.http.get(`${this.url}/posts`);
+  // get singular quote for stock from symbol name
+  getQuote(symbol: string): Observable<any> 
+  {
+    return this.http.get(`${this.url}/data/quote?symbols=${symbol}&api_token=${this.key}`);
+  }
+
+  // get intraday history for stock symbol
+  getIntraday(symbol: string): Observable<any> 
+  {
+    return this.http.get(`${this.url}/data/intraday?symbols=${symbol}&api_token=${this.key}`)
   }
 }

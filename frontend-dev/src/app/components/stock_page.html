@@ -1,10 +1,24 @@
 <body>
     <h1>HELLO FROM STOCKS PAGE</h1>
 
-    @for(post of posts; track post.id)
-    {
-        <li>Fetched id: {{post.id}}</li>
-        <li>Fetched title: {{post.title}}</li>
-        <li>Fetched body: {{post.body}}</li>
-    }
+    <p>console logging data</p>
+    <p>stock: 
+        <input name="stock_search" type="text" class="search-bar" [formControl]="stock_name" required />
+        <!-- validation checking for form -->
+        @if(stock_name.invalid && (stock_name.dirty || stock_name.touched ))
+        {
+            <div class="alert alert-danger">
+                @if(stock_name.hasError('required'))
+                {
+                    <div>Stock name required</div>
+                }
+                @if(stock_name.hasError('minlength'))
+                {
+                    <div>Stock name must be at least 2 characters</div>
+                }
+            </div>
+        }
+        <button type="submit" class="submit-input" (click)="onSubmit()" [disabled]="!stock_name.valid">Search stock</button>
+    </p>
+    <p>{{ posts }}</p>
 </body>
