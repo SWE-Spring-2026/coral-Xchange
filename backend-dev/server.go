@@ -1,12 +1,59 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/glebarez/go-sqlite"
 )
 
+var db *sql.DB
+
+func seedDatabase(db *sql.DB) {
+	tableQuery := `
+	CREATE TABLE IF NOT EXISTS account (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		ticker TEXT,
+		cash_balance REAL
+	);`
+
+	_, err := db.Exec(tableQuery)
+	if err != nil {
+		log.Fatal("Failed to create table:", err)
+	}
+
+	// 2. Check if the table is empty
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM account").Scan(&count)
+	if err != nil {
+		log.Fatal("Failed to check table count:", err)
+	}
+
+	// 3. Only push dummy data if the table is brand new/empty
+	if count == 0 {
+		_, err = db.Exec("INSERT INTO account (ticker, cash_balance) VALUES ('CORAL', 50000.00)")
+		if err != nil {
+			log.Fatal("Failed to seed dummy data:", err)
+		}
+		fmt.Println("Successfully seeded database with dummy data!")
+	}
+}
+
 func main() {
+	var err error
+
+	db, err = sql.Open("sqlite", "./coral-xchange.db")
+
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	seedDatabase(db)
+
 	r := gin.Default()
 
 	// Health endpoints
@@ -26,6 +73,7 @@ func main() {
 	}
 
 	r.Run(":8080")
+
 }
 
 // --------------------
@@ -56,8 +104,22 @@ func getPortfolio(c *gin.Context) {
 
 // GET /api/v1/account
 func getAccount(c *gin.Context) {
+	var balance float64
+	var ticker string
+
+	// QueryRow is used when you expect exactly one result
+	err := db.QueryRow("SELECT ticker, cash_balance FROM account LIMIT 1").Scan(&ticker, &balance)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Could not retrieve account balance",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"cashBalance": 10000.00,
+		"ticker":      ticker,
+		"cashBalance": balance,
 	})
 }
 
