@@ -2,10 +2,14 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
+
+	"github.com/joho/godotenv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/glebarez/go-sqlite"
@@ -88,6 +92,11 @@ func main() {
 
 	seedDatabase(db)
 
+	err2 := godotenv.Load()
+	if err2 != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	r := gin.Default()
 
 	// Health endpoints
@@ -103,6 +112,9 @@ func main() {
 		api.POST("/trade", placeTrade)
 
 		api.GET("/prices", getPrices)
+
+		api.GET("/searchStocks", searchStocks)
+		api.GET("/quote/:ticker", getStockQuote)
 	}
 
 	r.Run(":8080")
@@ -325,4 +337,81 @@ func getPrices(c *gin.Context) {
 			"GOOG": 200.00,
 		},
 	})
+}
+
+type SearchResponse struct {
+	Data []struct {
+		Symbol string `json:"symbol"`
+		Name   string `json:"name"`
+	} `json:"data"`
+}
+
+func searchStocks(c *gin.Context) {
+	apiToken := os.Getenv("STOCK_API_KEY")
+	searchTerm := c.Query("query")
+
+	apiURL := fmt.Sprintf("https://api.stockdata.org/v1/entity/search?search=%s&api_token=%s", searchTerm, apiToken)
+	resp, err := http.Get(apiURL)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reach API"})
+		return
+	}
+	defer resp.Body.Close()
+
+	var searchRes SearchResponse
+	if err := json.NewDecoder(resp.Body).Decode(&searchRes); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse search results"})
+		return
+	}
+
+	// If no stocks were found
+	if len(searchRes.Data) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "No stocks found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, searchRes.Data)
+}
+
+type QuoteResponse struct {
+	Data []struct {
+		Ticker        string  `json:"ticker"`
+		Name          string  `json:"name"`
+		Price         float64 `json:"price"`
+		DayHigh       float64 `json:"day_high"`
+		DayLow        float64 `json:"day_low"`
+		DayOpen       float64 `json:"day_open"`
+		DayChange     float64 `json:"day_change"`
+		Volume        int64   `json:"volume"`
+		YearHigh      float64 `json:"52_week_high"`
+		YearLow       float64 `json:"52_week_low"`
+		LastTradeTime string  `json:"last_trade_time"`
+	} `json:"data"`
+}
+
+func getStockQuote(c *gin.Context) {
+	ticker := c.Param("ticker")
+	apiToken := os.Getenv("STOCK_API_KEY")
+	apiURL := fmt.Sprintf("https://api.stockdata.org/v1/data/quote?symbols=%s&api_token=%s", ticker, apiToken)
+
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "API unreachable"})
+		return
+	}
+	defer resp.Body.Close()
+
+	var quoteRes QuoteResponse
+	if err := json.NewDecoder(resp.Body).Decode(&quoteRes); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse data"})
+		return
+	}
+
+	if len(quoteRes.Data) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Ticker not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, quoteRes.Data[0])
 }
