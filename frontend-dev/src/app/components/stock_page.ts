@@ -1,16 +1,19 @@
 import { Api } from "../api";
-import { Component, inject, OnInit, signal} from "@angular/core";
+import { Component, inject, signal} from "@angular/core";
+import { MatCardModule } from "@angular/material/card";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Stock } from "./stock_interface";
 
 @Component 
 ({
     selector: 'stocks',
     templateUrl: './stock_page.html',
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, MatCardModule],
 })
 
 export class stocks {
-    posts: any[] = [];
+    // track post as signal (ensures angular change tracking will notice)
+    posts = signal<Stock | null>(null);
     error = "";
     // form input for stock search
     // add validation
@@ -25,19 +28,16 @@ export class stocks {
     load_quote(symbol: string): void 
     {
         this.api.getQuote(symbol).subscribe((data) => {
-            this.posts = data.data;
-            console.log(this.posts);
+            this.posts.set(data.data[0]);
         });
     }
 
     // submission function for input form
     onSubmit()
     {
-        console.log(this.stock_name.value);
         // load quote data from searched stock
         this.load_quote(this.stock_name.value);
-        // this.load_intraday(this.stock_name.value);
-        
+        // this.load_intraday(this.stock_name.value); 
     }
 
     // load intraday data

@@ -1,7 +1,5 @@
 <body>
-    <h1>HELLO FROM STOCKS PAGE</h1>
-
-    <p>console logging data</p>
+    <h1>Stock Data</h1>
     <p>stock: 
         <input name="stock_search" type="text" class="search-bar" [formControl]="stock_name" required />
         <!-- validation checking for form -->
@@ -20,5 +18,25 @@
         }
         <button type="submit" class="submit-input" (click)="onSubmit()" [disabled]="!stock_name.valid">Search stock</button>
     </p>
-    <p>{{ posts }}</p>
+    <mat-card class="stock-info-card">
+        <mat-card-header class="stock-card-header"> Stock Name </mat-card-header>
+        <mat-card-content class="stock-card-content">
+            {{ posts()?.name }}
+            {{ posts()?.ticker }}
+        </mat-card-content>
+    </mat-card>
+        <mat-card class="stock-info-card">
+        <mat-card-header class="stock-card-header"> Stock Price Current </mat-card-header>
+        <mat-card-content class="stock-card-content">
+            $ 
+            @if(posts()?.price != null) 
+            {
+                {{ posts()?.price }}
+            }
+            @else 
+            {
+                0.00
+            }
+        </mat-card-content>
+    </mat-card>
 </body>
