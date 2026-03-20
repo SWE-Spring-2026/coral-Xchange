@@ -18,9 +18,9 @@ export class Api {
     return this.http.get(`${this.url}/data/quote?symbols=${symbol}&api_token=${this.key}`);
   }
 
-  // get intraday history for stock symbol
+  // get intraday history for stock symbol (currently getting from fixed dates, and only hour interval)
   getIntraday(symbol: string): Observable<any> 
   {
-    return this.http.get(`${this.url}/data/intraday?symbols=${symbol}&api_token=${this.key}`)
+    return this.http.get(`${this.url}/data/intraday?symbols=${symbol}&api_token=${this.key}&interval=hour&date_from=2026-03-09&date_to=2026-03-13&sort=asc`)
   }
 }

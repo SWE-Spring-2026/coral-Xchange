@@ -5,7 +5,6 @@ import { MatSidenavModule} from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { provideHttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',

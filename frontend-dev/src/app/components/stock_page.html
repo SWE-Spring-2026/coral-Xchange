@@ -1,42 +1,73 @@
 <body>
-    <h1>Stock Data</h1>
-    <p>stock: 
-        <input name="stock_search" type="text" class="search-bar" [formControl]="stock_name" required />
-        <!-- validation checking for form -->
-        @if(stock_name.invalid && (stock_name.dirty || stock_name.touched ))
-        {
-            <div class="alert alert-danger">
-                @if(stock_name.hasError('required'))
+    <div class="main-layout">
+    <div class="left-panel">
+        <h1>Stock Data</h1>
+        <div class="search-area">
+            <p>Search Stock: 
+                <input name="stock_search" type="text" class="search-bar" [formControl]="stock_name" required />
+                <!-- validation checking for form -->
+                @if(stock_name.invalid && (stock_name.dirty || stock_name.touched ))
                 {
-                    <div>Stock name required</div>
+                    <div class="alert alert-danger">
+                        @if(stock_name.hasError('required'))
+                        {
+                            <div>Stock name required</div>
+                        }
+                        @if(stock_name.hasError('minlength'))
+                        {
+                            <div>Stock name must be at least 2 characters</div>
+                        }
+                    </div>
                 }
-                @if(stock_name.hasError('minlength'))
-                {
-                    <div>Stock name must be at least 2 characters</div>
-                }
-            </div>
-        }
-        <button type="submit" class="submit-input" (click)="onSubmit()" [disabled]="!stock_name.valid">Search stock</button>
-    </p>
-    <mat-card class="stock-info-card">
-        <mat-card-header class="stock-card-header"> Stock Name </mat-card-header>
-        <mat-card-content class="stock-card-content">
-            {{ posts()?.name }}
-            {{ posts()?.ticker }}
-        </mat-card-content>
-    </mat-card>
-        <mat-card class="stock-info-card">
-        <mat-card-header class="stock-card-header"> Stock Price Current </mat-card-header>
-        <mat-card-content class="stock-card-content">
-            $ 
-            @if(posts()?.price != null) 
+                <button type="submit" class="submit-input" (click)="onSubmit()" [disabled]="!stock_name.valid">Search stock</button>
+            </p>
+        </div>
+        <!--Stock cards for name and current price -->
+        <div class="card-area">
+            <mat-card class="stock-info-card">
+                <mat-card-header class="stock-card-header"> Stock Name </mat-card-header>
+                <mat-card-content class="stock-card-content">
+                    {{ posts()?.name }}
+                    {{ posts()?.ticker }}
+                </mat-card-content>
+            </mat-card>
+                <mat-card class="stock-info-card">
+                <mat-card-header class="stock-card-header"> Stock Price Current </mat-card-header>
+                <mat-card-content class="stock-card-content">
+                    $ 
+                    @if(posts()?.price != null) 
+                    {
+                        {{ posts()?.price }}
+                    }
+                    @else 
+                    {
+                        0.00
+                    }
+                </mat-card-content>
+            </mat-card>
+        </div>
+        </div>
+        <!--Buttons for future use when buying and selling -->
+        <div class="add-button">
+            <button matFab extended>
+                <mat-icon>add</mat-icon>
+                1
+            </button>
+        </div>
+        <div class="subtract-button">
+            <button matFab extended>
+                <mat-icon>remove</mat-icon>
+                1
+            </button>
+        </div>
+    <div class="right-panel"> 
+        </div>
+        <!--AG chart -->
+        <div class="chart">
+            @if(show_chart)
             {
-                {{ posts()?.price }}
+                <ag-charts [options]="stock_chart.options"></ag-charts>
             }
-            @else 
-            {
-                0.00
-            }
-        </mat-card-content>
-    </mat-card>
+        </div>
+    </div>   
 </body>
