@@ -35,7 +35,7 @@ export class stocks {
     load_quote(symbol: string): void 
     {
         this.api.getQuote(symbol).subscribe((data) => {
-            this.posts.set(data.data[0]);
+            this.posts.set(data);
         });
     }
 

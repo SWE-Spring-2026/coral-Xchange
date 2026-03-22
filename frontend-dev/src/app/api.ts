@@ -8,6 +8,7 @@ export class Api {
   // using testing api for setting up api calls
   private url = import.meta.env.NG_APP_PUBLIC_STOCKDATA_URL;
   private key = import.meta.env.NG_APP_PUBLIC_STOCKDATA_KEY;
+  private backend_api_url = import.meta.env.NG_APP_BACKEND_URL;
 
   // constructor 
   private http = inject(HttpClient);
@@ -15,7 +16,8 @@ export class Api {
   // get singular quote for stock from symbol name
   getQuote(symbol: string): Observable<any> 
   {
-    return this.http.get(`${this.url}/data/quote?symbols=${symbol}&api_token=${this.key}`);
+    // currently using a proxy to avoid CORS error, when backend fixed will use backend url
+    return this.http.get(`/api/v1/quote/${symbol}`);
   }
 
   // get intraday history for stock symbol (currently getting from fixed dates, and only hour interval)
