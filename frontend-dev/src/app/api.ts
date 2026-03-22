@@ -17,7 +17,8 @@ export class Api {
   getQuote(symbol: string): Observable<any> 
   {
     // currently using a proxy to avoid CORS error, when backend fixed will use backend url
-    return this.http.get(`/api/v1/quote/${symbol}`);
+    // return this.http.get(`/api/v1/quote/${symbol}`);
+    return this.http.get(`${this.backend_api_url}quote/${symbol}`);
   }
 
   // get intraday history for stock symbol (currently getting from fixed dates, and only hour interval)
