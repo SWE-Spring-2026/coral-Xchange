@@ -6,10 +6,10 @@
       <a mat-button routerLink="/stocks" routerLinkActive="active">Stocks</a>
   </div>
   <span class="spacer"></span>
-  <button mat-icon-button class="profile-icon" [matMenuTriggerFor]="userMenu" routerLink="/user-profile" routerLinkActive="active-icon" aria-label="User menu">
+  <button mat-icon-button class="profile-icon" [matMenuTriggerFor]="userMenu" routerLinkActive="active-icon" aria-label="User menu">
     <mat-icon>account_circle</mat-icon>
   </button>
-  <mat-menu #userMenu="matMenu">
+  <mat-menu #userMenu="matMenu" class="profile-menu">
     @if (!auth.isLoggedIn())
     {
         <button mat-menu-item routerLink="/login">Log In</button>

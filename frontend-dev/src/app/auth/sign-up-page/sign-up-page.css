@@ -1,0 +1,16 @@
+:host {
+    display: block;
+    min-height: calc(100vh - 64px);
+    background: #f8fafc;
+    padding: 32px 16px;
+}
+
+.signup-page {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.signup-card {
+    border-radius: 16px;
+    padding: 12px;
+}
