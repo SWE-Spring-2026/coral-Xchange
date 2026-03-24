@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/glebarez/go-sqlite"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 var db *sql.DB
@@ -98,7 +99,9 @@ func main() {
 	}
 
 	r := gin.Default()
-
+	
+	r.Use(cors.Default())
+	
 	// Health endpoints
 	r.GET("/", welcome)
 

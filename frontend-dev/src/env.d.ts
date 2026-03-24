@@ -5,6 +5,7 @@ declare interface Env {
   readonly NG_APP_PUBLIC_ALPHA_KEY: string;
   readonly NG_APP_PUBLIC_STOCKDATA_KEY: string;
   readonly NG_APP_PUBLIC_STOCKDATA_URL: string;
+  readonly NG_APP_BACKEND_URL: string;
   // Replace the following with your own environment variables.
   // Example: NGX_VERSION: string;
   [key: string]: any;

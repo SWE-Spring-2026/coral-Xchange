@@ -9,6 +9,7 @@ import {
   NumberAxisModule,
   OrdinalTimeAxisModule,
   CategoryAxisModule,
+  ZoomModule,
 } from "ag-charts-enterprise";
 import clone from "clone";
 
@@ -21,6 +22,7 @@ ModuleRegistry.registerModules([
   OrdinalTimeAxisModule,
   ContextMenuModule,
   CategoryAxisModule,
+  ZoomModule,
 ]);
 
 export class stock_chart 
@@ -30,16 +32,23 @@ export class stock_chart
     constructor() 
     {
         this.options = {
+        theme: 'ag-financial-dark',
         title: {
             text: "",
         },
         subtitle: {
             text: "Open and Close Prices",
         },
+        zoom: {
+            enabled: true,
+        },
+        background: {
+            visible: false,
+        },
         data: [],
         series: [
             {
-                type: "candlestick",
+                type: 'candlestick',
                 xKey: "date",
                 xName: "Date",
                 lowKey: "data.low",

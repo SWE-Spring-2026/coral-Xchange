@@ -1,19 +1,20 @@
 import { Api } from "../api";
 import { Component, inject, signal} from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
-import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import { Stock } from "./stock_interface";
 import { stock_chart } from "./stock-chart";
 import { AgCharts } from "ag-charts-angular";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { order_select } from "./drop_down";
 
 @Component 
 ({
     selector: 'stocks',
     templateUrl: './stock_page.html',
     styleUrl: './stock_page.css',
-    imports: [ReactiveFormsModule, MatCardModule, AgCharts, MatButtonModule, MatIconModule],
+    imports: [ReactiveFormsModule, MatCardModule, AgCharts, MatButtonModule, MatIconModule, order_select],
 })
 
 export class stocks {
@@ -27,24 +28,29 @@ export class stocks {
         Validators.required,
         Validators.minLength(2),
     ]});
+    // form input for buying stock
+    stock_amount = new FormControl(1, {nonNullable: true, validators: [
+        Validators.min(0)
+    ]});
     // create api object for calls from api class
     private api = inject(Api);
-    public stock_chart = new stock_chart();
+    public stock_chart = signal(new stock_chart());
     
     // load posts from api call
     load_quote(symbol: string): void 
     {
         this.api.getQuote(symbol).subscribe((data) => {
-            this.posts.set(data.data[0]);
+            this.posts.set(data);
         });
     }
 
     // submission function for input form
-    onSubmit()
+    on_submit()
     {
         // load quote data from searched stock
         this.load_quote(this.stock_name.value);
         this.load_intra(this.stock_name.value);
+        this.show_chart = true;
     }
 
     // load intraday data (for chart)
@@ -53,8 +59,21 @@ export class stocks {
         this.api.getIntraday(symbol).subscribe((data) => {
             // set data of stock chart and set show chart to true
             const intra_data = data.data;
-            this.stock_chart.setData(intra_data);
-            this.show_chart = true;
+            const updated_chart = new stock_chart();
+            updated_chart.setData(intra_data);
+            this.stock_chart.set(updated_chart);
         });
+    }
+
+    increase_count()
+    {
+        const current_val = this.stock_amount.value;
+        this.stock_amount.setValue(current_val + 1);
+    }
+
+    decrease_count()
+    {
+        const current_val = this.stock_amount.value;
+        this.stock_amount.setValue(current_val - 1)
     }
 }
