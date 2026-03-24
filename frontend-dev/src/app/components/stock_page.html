@@ -3,7 +3,7 @@
     <div class="left-panel">
         <h1>Stock Data</h1>
         <div class="search-area">
-            <p>Search Stock: 
+            <p>Stock Ticker: 
                 <input name="stock_search" type="text" class="search-bar" [formControl]="stock_name" required />
                 <!-- validation checking for form -->
                 @if(stock_name.invalid && (stock_name.dirty || stock_name.touched ))
