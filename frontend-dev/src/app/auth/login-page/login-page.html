@@ -1,0 +1,29 @@
+<div class="login-page">
+    <mat-card class="login-card" appearance="outlined">
+    <mat-card-header>
+        <mat-card-title>Log In</mat-card-title>
+        <mat-card-subtitle>Demo user login</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+        <p>
+        For now, sign in as a default user so the user profile flow works before
+        full sign-up and authentication are implemented.
+        </p>
+
+        <div class="demo-user">
+        <p><strong>Name:</strong> Carlos Diaz</p>
+        <p><strong>Username:</strong> @cdiaz</p>
+        <p><strong>Email:</strong> carlos.diaz@example.com</p>
+        </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+        <button mat-raised-button type="button" (click)="loginAsDefaultUser()">
+        Log In as Default User
+        </button>
+
+        <a mat-button routerLink="/signup">Sign Up</a>
+    </mat-card-actions>
+    </mat-card>
+</div>

@@ -4,3 +4,11 @@ html, body
     margin: 0;
     padding: 0;
 }
+
+.profile-menu {
+    background-color: white !important;
+}
+
+.profile-menu .mat-mdc-menu-item {
+    color: black !important;
+}
