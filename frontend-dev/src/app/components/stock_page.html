@@ -1,24 +1,77 @@
 <body>
-    <h1>HELLO FROM STOCKS PAGE</h1>
-
-    <p>console logging data</p>
-    <p>stock: 
-        <input name="stock_search" type="text" class="search-bar" [formControl]="stock_name" required />
-        <!-- validation checking for form -->
-        @if(stock_name.invalid && (stock_name.dirty || stock_name.touched ))
-        {
-            <div class="alert alert-danger">
-                @if(stock_name.hasError('required'))
+    <div class="main-layout">
+    <div class="left-panel">
+        <h1>Stock Data</h1>
+        <div class="search-area">
+            <p>Stock Ticker: 
+                <input name="stock_search" type="text" class="search-bar" [formControl]="stock_name" required />
+                <!-- validation checking for form -->
+                @if(stock_name.invalid && (stock_name.dirty || stock_name.touched ))
                 {
-                    <div>Stock name required</div>
+                    <div class="alert alert-danger">
+                        @if(stock_name.hasError('required'))
+                        {
+                            <div>Stock name required</div>
+                        }
+                        @if(stock_name.hasError('minlength'))
+                        {
+                            <div>Stock name must be at least 2 characters</div>
+                        }
+                    </div>
                 }
-                @if(stock_name.hasError('minlength'))
-                {
-                    <div>Stock name must be at least 2 characters</div>
-                }
+                <button type="submit" class="submit-input" (click)="on_submit()" [disabled]="!stock_name.valid">Search stock</button>
+            </p>
+        </div>
+            <!--Stock cards for name and current price -->
+            <div class="card-area">
+                <mat-card class="stock-info-card">
+                    <mat-card-header class="stock-card-header"> Stock Name </mat-card-header>
+                    <mat-card-content class="stock-card-content">
+                        {{ posts()?.name }}
+                        {{ posts()?.ticker }}
+                    </mat-card-content>
+                </mat-card>
+                    <mat-card class="stock-info-card">
+                    <mat-card-header class="stock-card-header"> Stock Price Current </mat-card-header>
+                    <mat-card-content class="stock-card-content">
+                        $ 
+                        @if(posts()?.price != null) 
+                        {
+                            {{ posts()?.price }}
+                        }
+                        @else 
+                        {
+                            0.00
+                        }
+                    </mat-card-content>
+                </mat-card>
             </div>
-        }
-        <button type="submit" class="submit-input" (click)="onSubmit()" [disabled]="!stock_name.valid">Search stock</button>
-    </p>
-    <p>{{ posts }}</p>
+            <!--Buttons for future use when buying and selling -->
+            <div class="button-area">
+                <div class="add-button">
+                    <button matFab extended (click)="increase_count()">
+                        <mat-icon>add</mat-icon>
+                        1
+                    </button>
+                </div>
+                <input name="buy_amount" type="number" class="buy_bar" [formControl]="stock_amount" />
+                <div class="subtract-button">
+                    <button matFab extended (click)="decrease_count()">
+                        <mat-icon>remove</mat-icon>
+                        1
+                    </button>
+                </div>
+            </div>
+            <order_select class="drop-down"></order_select>
+        </div>
+    <div class="right-panel"> 
+        </div>
+        <!--AG chart -->
+        <div class="chart">
+            @if(show_chart)
+            {
+                <ag-charts [options]="stock_chart().options"></ag-charts>
+            }
+        </div>
+    </div>   
 </body>

@@ -1,0 +1,9 @@
+<mat-form-field>
+    <mat-label>Order Type</mat-label>
+    <mat-select>
+        @for(order of orders; track order)
+        {
+            <mat-option [value]="order.value"> {{order.view_value}} </mat-option>
+        }
+    </mat-select>
+</mat-form-field>

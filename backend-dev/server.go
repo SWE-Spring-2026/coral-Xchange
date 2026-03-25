@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/glebarez/go-sqlite"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 var db *sql.DB
@@ -43,7 +44,7 @@ func seedDatabase(db *sql.DB) {
 		if err != nil {
 			log.Fatal("Failed to seed dummy account data:", err)
 		}
-		fmt.Println("Successfully seeded database with dummy data!")
+		// fmt.Println("Successfully seeded database with dummy data!")
 	}
 
 	// Create holdings table if it doesn't exist
@@ -72,7 +73,7 @@ func seedDatabase(db *sql.DB) {
 		if err != nil {
 			log.Fatal("Failed to seed dummy holdings data:", err)
 		}
-		fmt.Println("Successfully seeded holdings table with dummy data!")
+		// fmt.Println("Successfully seeded holdings table with dummy data!")
 	}
 }
 
@@ -94,10 +95,12 @@ func main() {
 
 	err2 := godotenv.Load()
 	if err2 != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Error loading .env file. Please include API key.")
 	}
 
 	r := gin.Default()
+
+	r.Use(cors.Default())
 
 	// Health endpoints
 	r.GET("/", welcome)
@@ -217,6 +220,15 @@ func placeTrade(c *gin.Context) {
 		return
 	}
 
+	// Validate that the quantity is positive
+	if req.Quantity <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid buy/sell quantity",
+		})
+		return
+	}
+
+	// Get user's cash holdings
 	var balance float64
 	err := db.QueryRow("SELECT cash_balance FROM account WHERE user_id = 1").Scan(&balance)
 	if err != nil {
