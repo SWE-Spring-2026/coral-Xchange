@@ -7,9 +7,19 @@
       <a mat-button routerLink="/discovery" routerLinkActive="active">Discover</a>
   </div>
   <span class="spacer"></span>
-  <a mat-icon-button class="profile-icon" routerLink="/user-profile" routerLinkActive="active-icon" aria-label="User Profile">
+  <button mat-icon-button class="profile-icon" [matMenuTriggerFor]="userMenu" routerLinkActive="active-icon" aria-label="User menu">
     <mat-icon>account_circle</mat-icon>
-  </a>
+  </button>
+  <mat-menu #userMenu="matMenu" class="profile-menu">
+    @if (!auth.isLoggedIn())
+    {
+        <button mat-menu-item routerLink="/login">Log In</button>
+        <button mat-menu-item routerLink="/signup">Sign Up</button>
+    } @else {
+      <button mat-menu-item routerLink="/user-profile">My Profile</button>
+      <button mat-menu-item (click)="logout()">Logout</button>
+    }
+  </mat-menu>
 </mat-toolbar>
 <router-outlet></router-outlet>
 
