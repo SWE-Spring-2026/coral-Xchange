@@ -1,0 +1,23 @@
+<body>
+    <div class="article-area">
+        @if(news().length != 0)
+        {
+            @for(element of news(); track element.id)
+            {
+                    <mat-card (click)="navigate(element.url)" class="news-article" >
+                        <mat-card-header class="article-header">
+                            <mat-card-title>
+                                {{ element.headline }}
+                            </mat-card-title>
+                            <mat-card-subtitle>
+                                {{ element.category }}
+                            </mat-card-subtitle>
+                        </mat-card-header>
+                        <img mat-card-image [src]="element.image" >
+                        <mat-card-content class="article-summary">{{ element.summary }}</mat-card-content>
+                    </mat-card>
+            }
+        }
+    </div>
+</body>
+
