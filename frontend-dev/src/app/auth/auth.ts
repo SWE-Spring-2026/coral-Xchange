@@ -7,6 +7,12 @@ export interface AppUser {
   memberSince: string; // maybe use Date
 }
 
+export interface SignUpPayload {
+  name: string;
+  email: string;
+  password: string;
+}
+
 const STORAGE_KEY = 'coral-xchange-user';
 
 const DEFAULT_USER: AppUser = {
@@ -28,9 +34,32 @@ export class Auth {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USER));
   }
 
+  registerLocalUser(payload: SignUpPayload): void {
+    const user: AppUser = {
+      name: payload.name.trim(),
+      username: this.createUsername(payload.email, payload.name),
+      email: payload.email.trim().toLowerCase(),
+      memberSince: new Date().toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      }),
+    };
+
+    this.currentUser.set(user);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  }
+
   logout(): void {
     this.currentUser.set(null);
     localStorage.removeItem(STORAGE_KEY);
+  }
+
+  private createUsername(email: string, name: string): string {
+    const emailPrefix = email.split('@')[0]?.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
+    if (emailPrefix) {
+      return emailPrefix;
+    }
+    return name.trim().toLowerCase().replace(/\s+/g, '');
   }
 
   private loadStoredUser(): AppUser | null {
@@ -44,4 +73,6 @@ export class Auth {
     } catch {}
     return null;
   }
+
+  
 }

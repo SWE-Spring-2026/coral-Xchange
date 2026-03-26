@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { SignUpPage } from './sign-up-page';
 
@@ -8,7 +9,8 @@ describe('SignUpPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SignUpPage]
+      imports: [SignUpPage],
+      providers: [provideRouter([])],
     })
     .compileComponents();
 
@@ -19,5 +21,9 @@ describe('SignUpPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should start with an invalid form', () => {
+    expect(component.signUpForm.invalid).toBeTruthy();
   });
 });

@@ -2,17 +2,53 @@
     <mat-card class="signup-card" appearance="outlined">
     <mat-card-header>
         <mat-card-title>Sign Up</mat-card-title>
-        <mat-card-subtitle>Planned next</mat-card-subtitle>
+        <mat-card-subtitle>Join the Coral-XChange school now!</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
-        <p>
-        Placeholder for navigation flow. Full sign-up and authentication can be added in the next sprint.
+        <p class="helper-text">
+        This page accepts user input now. Backend account creation can be connected in a later sprint.
         </p>
-    </mat-card-content>
 
-    <mat-card-actions>
-        <a mat-button routerLink="/login">Go to Log In</a>
-    </mat-card-actions>
+        <form class="signup-form" [formGroup]="signUpForm" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput type="text" formControlName="name" autocomplete="name" />
+            @if (name.hasError('required') && name.touched) {
+            <mat-error>Name is required.</mat-error>
+            }
+            @if (name.hasError('minlength') && name.touched) {
+            <mat-error>Name must be at least 2 characters.</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="email" />
+            @if (email.hasError('required') && email.touched) {
+            <mat-error>Email is required.</mat-error>
+            }
+            @if (email.hasError('email') && email.touched) {
+            <mat-error>Enter a valid email address.</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="new-password" />
+            @if (password.hasError('required') && password.touched) {
+            <mat-error>Password is required.</mat-error>
+            }
+            @if (password.hasError('minlength') && password.touched) {
+            <mat-error>Password must be at least 8 characters.</mat-error>
+            }
+        </mat-form-field>
+
+        <div class="form-actions">
+            <button mat-raised-button type="submit">Create Account</button>
+            <a mat-button routerLink="/login">Go to Log In</a>
+        </div>
+        </form>
+    </mat-card-content>
     </mat-card>
 </div>
