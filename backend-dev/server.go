@@ -8,141 +8,347 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"github.com/joho/godotenv"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/glebarez/go-sqlite"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 	cors "github.com/rs/cors/wrapper/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var db *sql.DB
+var jwtSecret []byte
 
-func seedDatabase(db *sql.DB) {
-	// 1. Create the account table if it doesn't exist
-	tableQuery := `
-	CREATE TABLE IF NOT EXISTS account (
-		user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-		cash_balance REAL
-	);`
+// ---------------------------------------------------------------------------
+// JWT
+// ---------------------------------------------------------------------------
 
-	_, err := db.Exec(tableQuery)
-	if err != nil {
-		log.Fatal("Failed to create table:", err)
-	}
+// Claims defines the structure of the JSON Web Token payload for authenticated users.
+// It is instantiated during login and parsed/validated on each protected request by authMiddleware.
+type Claims struct {
+	UserID   int    `json:"user_id"`
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
 
-	// 2. Check if the table is empty
-	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM account").Scan(&count)
-	if err != nil {
-		log.Fatal("Failed to check table count:", err)
-	}
-
-	// 3. Only push dummy data if the table is brand new/empty
-	if count == 0 {
-		_, err = db.Exec("INSERT INTO account (user_id, cash_balance) VALUES (1, 100000.00)")
-		if err != nil {
-			log.Fatal("Failed to seed dummy account data:", err)
+// authMiddleware validates the Bearer token on every protected route and
+// injects userID / username into the Gin context for downstream handlers.
+func authMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required (Bearer <token>)"})
+			c.Abort()
+			return
 		}
-		// fmt.Println("Successfully seeded database with dummy data!")
-	}
 
-	// Create holdings table if it doesn't exist
-	holdingsQuery := `
-	CREATE TABLE IF NOT EXISTS holdings (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		user_id INTEGER,
-		ticker TEXT,
-		quantity INTEGER,
-		price REAL
-	);`
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		claims := &Claims{}
 
-	_, err = db.Exec(holdingsQuery)
-	if err != nil {
-		log.Fatal("Failed to create holdings table:", err)
-	}
+		// Parse and validate the token
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+			}
+			return jwtSecret, nil
+		})
 
-	var holdingsCount int
-	err = db.QueryRow("SELECT COUNT(*) FROM holdings").Scan(&holdingsCount)
-	if err != nil {
-		log.Fatal("Failed to check holdings table count:", err)
-	}
-
-	if holdingsCount == 0 {
-		_, err = db.Exec("INSERT INTO holdings (user_id, ticker, quantity, price) VALUES (1, 'AAPL', 50, 150.00)")
-		if err != nil {
-			log.Fatal("Failed to seed dummy holdings data:", err)
+		if err != nil || !token.Valid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			c.Abort()
+			return
 		}
-		// fmt.Println("Successfully seeded holdings table with dummy data!")
+
+		c.Set("userID", claims.UserID)
+		c.Set("username", claims.Username)
+		c.Next()
 	}
 }
 
+// helper that pulls the authenticated user's ID
+// from the Gin context (set by authMiddleware).
+func getUserID(c *gin.Context) int {
+	id, _ := c.Get("userID")
+	return id.(int)
+}
+
+// ---------------------------------------------------------------------------
+// Database initialisation
+// ---------------------------------------------------------------------------
+
+func seedDatabase(db *sql.DB) {
+}
+func initDatabase(database *sql.DB) {
+	// Enable foreign-key enforcement (off by default in SQLite).
+	_, err := database.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		log.Fatal("Failed to enable foreign keys:", err)
+	}
+
+	queries := []string{
+		// Users table — the anchor for every other table.
+		`CREATE TABLE IF NOT EXISTS users (
+			id            INTEGER PRIMARY KEY AUTOINCREMENT,
+			username      TEXT UNIQUE NOT NULL,
+			email         TEXT UNIQUE NOT NULL,
+			password_hash TEXT NOT NULL,
+			created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+
+		// One account row per user, created automatically on registration.
+		`CREATE TABLE IF NOT EXISTS account (
+			user_id      INTEGER PRIMARY KEY,
+			cash_balance REAL NOT NULL DEFAULT 100000.00,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		)`,
+
+		// Each holding is scoped to a user.
+		`CREATE TABLE IF NOT EXISTS holdings (
+			id       INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id  INTEGER NOT NULL,
+			ticker   TEXT    NOT NULL,
+			quantity INTEGER NOT NULL,
+			price    REAL    NOT NULL,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		)`,
+	}
+
+	for _, q := range queries {
+		if _, err := database.Exec(q); err != nil {
+			log.Fatal("Failed to run init query:", err)
+		}
+	}
+
+	fmt.Println("Database initialised successfully.")
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
 func main() {
-	var err error
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file. Ensure STOCK_API_KEY and JWT_SECRET are set.")
+	}
+
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		log.Fatal("JWT_SECRET must be set in .env")
+	}
+	jwtSecret = []byte(secret)
 
 	// Use a relative DB path and log the absolute path so we know which file is opened.
 	dbPath := "./coral-xchange.db"
 	absPath, _ := filepath.Abs(dbPath)
 	fmt.Println("Opening DB at:", absPath)
 	db, err = sql.Open("sqlite", dbPath)
-
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	seedDatabase(db)
-
-	err2 := godotenv.Load()
-	if err2 != nil {
-		log.Fatal("Error loading .env file. Please include API key.")
-	}
+	initDatabase(db)
 
 	r := gin.Default()
-
 	r.Use(cors.Default())
 
-	// Health endpoints
 	r.GET("/", welcome)
 
-	// Versioned API group
 	api := r.Group("/api/v1")
 	{
-		api.GET("/portfolio", getPortfolio)
-		api.GET("/account", getAccount)
-		api.GET("/trades", getTrades)
+		// ── Public auth routes ────────────────────────────────────────────
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", register)
+			auth.POST("/login", login)
+		}
 
-		api.POST("/trade", placeTrade)
+		// ── Protected routes (JWT required) ───────────────────────────────
+		protected := api.Group("/")
+		protected.Use(authMiddleware())
+		{
+			protected.GET("/auth/me", getMe)
 
-		api.GET("/prices", getPrices)
+			protected.GET("/portfolio", getPortfolio)
+			protected.GET("/account", getAccount)
+			protected.GET("/trades", getTrades)
+			protected.POST("/trade", placeTrade)
 
-		api.GET("/searchStocks", searchStocks)
-		api.GET("/quote/:ticker", getStockQuote)
+			protected.GET("/searchStocks", searchStocks)
+			protected.GET("/quote/:ticker", getStockQuote)
+		}
 	}
 
 	r.Run(":8080")
-
 }
 
-// --------------------
-// Basic Handlers
-// --------------------
+// ---------------------------------------------------------------------------
+// Auth handlers
+// ---------------------------------------------------------------------------
+
+// POST /api/v1/auth/register
+func register(c *gin.Context) {
+	var req struct {
+		Username string `json:"username"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	if req.Username == "" || req.Email == "" || req.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username, email, and password are all required"})
+		return
+	}
+
+	if len(req.Password) < 8 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Password must be at least 8 characters"})
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not hash password"})
+		return
+	}
+
+	res, err := db.Exec(
+		"INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+		req.Username, req.Email, string(hash),
+	)
+	if err != nil {
+		// A UNIQUE constraint violation means the username or email is taken.
+		c.JSON(http.StatusConflict, gin.H{"error": "Username or email is already in use"})
+		return
+	}
+
+	userID, _ := res.LastInsertId()
+
+	// Provision a fresh $100,000 account for the new user.
+	_, err = db.Exec("INSERT INTO account (user_id, cash_balance) VALUES (?, 100000.00)", userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create account for user"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message":  "Registration successful",
+		"userID":   userID,
+		"username": req.Username,
+	})
+}
+
+// POST /api/v1/auth/login
+func login(c *gin.Context) {
+	var req struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil || req.Username == "" || req.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username and password are required"})
+		return
+	}
+
+	var userID int
+	var passwordHash string
+	err := db.QueryRow(
+		"SELECT id, password_hash FROM users WHERE username = ?", req.Username,
+	).Scan(&userID, &passwordHash)
+
+	if err == sql.ErrNoRows {
+		// Return the same message whether the username or password is wrong
+		// to avoid leaking which field is incorrect.
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve user"})
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(req.Password)); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	}
+
+	// JWT generation, with expiry set to 24 hours from now. (this may have to be shortened)
+	expiresAt := time.Now().Add(24 * time.Hour)
+	claims := &Claims{
+		UserID:   userID,
+		Username: req.Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token":     tokenString,
+		"expiresAt": expiresAt,
+		"userID":    userID,
+		"username":  req.Username,
+	})
+}
+
+// Consider renaming to profile or userInfo
+// GET /api/v1/auth/me
+func getMe(c *gin.Context) {
+	userID := getUserID(c)
+
+	var email, createdAt string
+	var username string
+	err := db.QueryRow(
+		"SELECT username, email, created_at FROM users WHERE id = ?", userID,
+	).Scan(&username, &email, &createdAt)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve user info"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"userID":    userID,
+		"username":  username,
+		"email":     email,
+		"createdAt": createdAt,
+	})
+}
+
+// ---------------------------------------------------------------------------
+// Basic handlers
+// ---------------------------------------------------------------------------
 
 func welcome(c *gin.Context) {
 	c.String(http.StatusOK, "Welcome to the Coral Xchange API!")
 }
 
-// --------------------
-// Trading Endpoints
-// --------------------
+// ---------------------------------------------------------------------------
+// Trading endpoints
+// ---------------------------------------------------------------------------
 
 // GET /api/v1/portfolio
 func getPortfolio(c *gin.Context) {
-	rows, err := db.Query(`SELECT ticker, quantity, price FROM holdings WHERE user_id = 1;`)
+	userID := getUserID(c)
+
+	rows, err := db.Query(
+		`SELECT ticker, quantity, price FROM holdings WHERE user_id = ?`, userID,
+	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	defer rows.Close()
@@ -155,11 +361,8 @@ func getPortfolio(c *gin.Context) {
 		var quantity int
 		var price float64
 
-		err := rows.Scan(&ticker, &quantity, &price)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
+		if err := rows.Scan(&ticker, &quantity, &price); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -179,16 +382,15 @@ func getPortfolio(c *gin.Context) {
 
 // GET /api/v1/account
 func getAccount(c *gin.Context) {
-	var balance float64
-	var userID int
+	userID := getUserID(c)
 
-	// QueryRow is used when you expect exactly one result
-	err := db.QueryRow("SELECT user_id, cash_balance FROM account LIMIT 1").Scan(&userID, &balance)
+	var balance float64
+	err := db.QueryRow(
+		"SELECT cash_balance FROM account WHERE user_id = ?", userID,
+	).Scan(&balance)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Could not retrieve account balance",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve account balance"})
 		return
 	}
 
@@ -207,34 +409,30 @@ func getTrades(c *gin.Context) {
 
 // POST /api/v1/trade
 func placeTrade(c *gin.Context) {
+	userID := getUserID(c)
+
 	var req struct {
 		Symbol   string `json:"symbol"`
-		Side     string `json:"side"` // BUY or SELL
+		Side     string `json:"side"` // "BUY" or "SELL"
 		Quantity int    `json:"quantity"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid request body",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	// Validate that the quantity is positive
 	if req.Quantity <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid buy/sell quantity",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Quantity must be greater than zero"})
 		return
 	}
 
-	// Get user's cash holdings
 	var balance float64
-	err := db.QueryRow("SELECT cash_balance FROM account WHERE user_id = 1").Scan(&balance)
+	err := db.QueryRow(
+		"SELECT cash_balance FROM account WHERE user_id = ?", userID,
+	).Scan(&balance)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Could not retrieve account balance",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve account balance"})
 		return
 	}
 
@@ -244,27 +442,31 @@ func placeTrade(c *gin.Context) {
 		// For simplicity, assume a fixed price of $100 per share
 		tradeCost := float64(req.Quantity) * 100.00
 		if balance < tradeCost {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Insufficient funds",
-			})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Insufficient funds"})
 			return
 		}
 
-		_, err = db.Exec("UPDATE account SET cash_balance = cash_balance - ? WHERE user_id = 1", tradeCost)
+		_, err = db.Exec(
+			"UPDATE account SET cash_balance = cash_balance - ? WHERE user_id = ?",
+			tradeCost, userID,
+		)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Could not update account balance",
-			})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update account balance"})
 			return
 		}
 
-		// If a holding for this ticker already exists, increment quantity; otherwise insert new row
 		var existingQty int
-		err = db.QueryRow("SELECT quantity FROM holdings WHERE user_id = 1 AND ticker = ?", req.Symbol).Scan(&existingQty)
+		err = db.QueryRow(
+			"SELECT quantity FROM holdings WHERE user_id = ? AND ticker = ?", userID, req.Symbol,
+		).Scan(&existingQty)
+
 		if err == sql.ErrNoRows {
-			res, err := db.Exec("INSERT INTO holdings (user_id, ticker, quantity, price) VALUES (1, ?, ?, 100.00)", req.Symbol, req.Quantity)
+			res, err := db.Exec(
+				"INSERT INTO holdings (user_id, ticker, quantity, price) VALUES (?, ?, ?, 100.00)",
+				userID, req.Symbol, req.Quantity,
+			)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert holdings"})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert holding"})
 				return
 			}
 			if ra, _ := res.RowsAffected(); ra == 0 {
@@ -275,9 +477,12 @@ func placeTrade(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not query holdings"})
 			return
 		} else {
-			res, err := db.Exec("UPDATE holdings SET quantity = quantity + ? WHERE user_id = 1 AND ticker = ?", req.Quantity, req.Symbol)
+			res, err := db.Exec(
+				"UPDATE holdings SET quantity = quantity + ? WHERE user_id = ? AND ticker = ?",
+				req.Quantity, userID, req.Symbol,
+			)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update holdings"})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update holding"})
 				return
 			}
 			if ra, _ := res.RowsAffected(); ra == 0 {
@@ -285,49 +490,51 @@ func placeTrade(c *gin.Context) {
 				return
 			}
 		}
-		balance = balance - tradeCost
+		balance -= tradeCost
 
 	case "SELL":
-		// we check if the user has enough holdings to sell
 		var quantity int
-		err := db.QueryRow("SELECT quantity FROM holdings WHERE user_id = 1 AND ticker = ?", req.Symbol).Scan(&quantity)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Could not retrieve holdings",
-			})
+		err := db.QueryRow(
+			"SELECT quantity FROM holdings WHERE user_id = ? AND ticker = ?", userID, req.Symbol,
+		).Scan(&quantity)
+
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "You do not own any shares of " + req.Symbol})
+			return
+		} else if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve holdings"})
 			return
 		}
+
 		if quantity < req.Quantity {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Insufficient holdings to sell",
-			})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Insufficient holdings to sell"})
 			return
 		}
+
 		tradeProceeds := float64(req.Quantity) * 100.00
-		_, err = db.Exec("UPDATE account SET cash_balance = cash_balance + ? WHERE user_id = 1", tradeProceeds)
+		_, err = db.Exec(
+			"UPDATE account SET cash_balance = cash_balance + ? WHERE user_id = ?",
+			tradeProceeds, userID,
+		)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Could not update account balance",
-			})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update account balance"})
 			return
 		}
-		_, err = db.Exec("UPDATE holdings SET quantity = quantity - ? WHERE user_id = 1 AND ticker = ?", req.Quantity, req.Symbol)
+		_, err = db.Exec(
+			"UPDATE holdings SET quantity = quantity - ? WHERE user_id = ? AND ticker = ?",
+			req.Quantity, userID, req.Symbol,
+		)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Could not update holdings",
-			})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update holdings"})
 			return
 		}
-		balance = balance + tradeProceeds
+		balance += tradeProceeds
 
 	default:
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid trade side. Must be 'BUY' or 'SELL'",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid trade side. Must be 'BUY' or 'SELL'."})
 		return
 	}
 
-	// Stub response
 	c.JSON(http.StatusOK, gin.H{
 		"status":        "FILLED",
 		"symbol":        req.Symbol,
@@ -338,18 +545,9 @@ func placeTrade(c *gin.Context) {
 	})
 }
 
-// GET /api/v1/prices?symbols=AAPL,GOOG
-func getPrices(c *gin.Context) {
-	symbols := c.Query("symbols")
-
-	c.JSON(http.StatusOK, gin.H{
-		"requested": symbols,
-		"prices": gin.H{
-			"AAPL": 100.00,
-			"GOOG": 200.00,
-		},
-	})
-}
+// ---------------------------------------------------------------------------
+// External market data endpoints
+// ---------------------------------------------------------------------------
 
 type SearchResponse struct {
 	Data []struct {
@@ -358,15 +556,18 @@ type SearchResponse struct {
 	} `json:"data"`
 }
 
+// GET /api/v1/searchStocks?query=<term>
 func searchStocks(c *gin.Context) {
 	apiToken := os.Getenv("STOCK_API_KEY")
 	searchTerm := c.Query("query")
 
-	apiURL := fmt.Sprintf("https://api.stockdata.org/v1/entity/search?search=%s&api_token=%s", searchTerm, apiToken)
+	apiURL := fmt.Sprintf(
+		"https://api.stockdata.org/v1/entity/search?search=%s&api_token=%s",
+		searchTerm, apiToken,
+	)
 	resp, err := http.Get(apiURL)
-
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reach API"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reach stock API"})
 		return
 	}
 	defer resp.Body.Close()
@@ -377,7 +578,6 @@ func searchStocks(c *gin.Context) {
 		return
 	}
 
-	// If no stocks were found
 	if len(searchRes.Data) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"message": "No stocks found"})
 		return
@@ -402,21 +602,25 @@ type QuoteResponse struct {
 	} `json:"data"`
 }
 
+// GET /api/v1/quote/:ticker
 func getStockQuote(c *gin.Context) {
 	ticker := c.Param("ticker")
 	apiToken := os.Getenv("STOCK_API_KEY")
-	apiURL := fmt.Sprintf("https://api.stockdata.org/v1/data/quote?symbols=%s&api_token=%s", ticker, apiToken)
+	apiURL := fmt.Sprintf(
+		"https://api.stockdata.org/v1/data/quote?symbols=%s&api_token=%s",
+		ticker, apiToken,
+	)
 
 	resp, err := http.Get(apiURL)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "API unreachable"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Stock API unreachable"})
 		return
 	}
 	defer resp.Body.Close()
 
 	var quoteRes QuoteResponse
 	if err := json.NewDecoder(resp.Body).Decode(&quoteRes); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse data"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse quote data"})
 		return
 	}
 

@@ -41,7 +41,6 @@ func setupRouter() *gin.Engine {
 		api.GET("/account", getAccount)
 		api.GET("/trades", getTrades)
 		api.POST("/trade", placeTrade)
-		api.GET("/prices", getPrices)
 		api.GET("/searchStocks", searchStocks)
 		api.GET("/quote/:ticker", getStockQuote)
 	}
