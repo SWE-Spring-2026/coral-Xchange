@@ -34,4 +34,22 @@ export class Api {
   {
     return this.http.get(`${this.url_news}news?category=${news_type}&token=${this.key_news}`);
   }
+
+  // register new user request
+  registerUser(register_data: any): Observable<any>
+  {
+    return this.http.post(`${this.backend_api_url}auth/register`, register_data);
+  }
+
+  // login user request
+  loginUser(login_data: any): Observable<any>
+  {
+    return this.http.post(`${this.backend_api_url}auth/login`, login_data);
+  }
+
+  // request user information
+  userInfo(token: any): Observable<any>
+  {
+    return this.http.get(`${this.backend_api_url}auth/me`, token);
+  }
 }

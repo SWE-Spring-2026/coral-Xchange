@@ -1,4 +1,6 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Api } from '../api';
+import { snack_bar } from '../snack_bar';
 
 export interface AppUser {
   name: string;
@@ -25,13 +27,56 @@ const DEFAULT_USER: AppUser = {
 @Injectable({
   providedIn: 'root',
 })
+
 export class Auth {
   currentUser = signal<AppUser | null>(this.loadStoredUser());
   isLoggedIn = computed(() => this.currentUser() !== null);
+  private api = inject(Api);
+  private snack = inject(snack_bar);
 
-  loginAsDefaultUser(): void {
-    this.currentUser.set(DEFAULT_USER);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USER));
+  login(username: string, password: string): void {
+    // Attempt to login with user infromation
+    const login_data = 
+    {
+      username: username,
+      password: password,
+    };
+
+    let req_res = null;
+
+    this.api.loginUser(login_data).subscribe({
+      next: (res) => {
+        // Store token for user, to be used in all other api calls
+        localStorage.setItem("token", res.token);
+        // Request user information
+        this.api.userInfo({
+          headers: 
+          {
+            Authorization: `Bearer ${res.token}`
+          } 
+        }).subscribe({
+          next: (res) => {
+            // Create user from result, set as user and set in local storage
+            const user: AppUser = {
+              name: res.username,
+              username: res.username,
+              email: res.email,
+              memberSince: res.createdAt
+            };
+            this.currentUser.set(user);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+            this.snack.openSnackBar("Login Succesful", "Close");
+          },
+          error: (err) => {
+            console.log(err);
+          }
+        });
+      },
+      error: (err) => {
+        console.log(err);
+        this.snack.openSnackBar("Incorrect Username/Password", "Close");
+      }
+    });
   }
 
   registerLocalUser(payload: SignUpPayload): void {
@@ -44,9 +89,24 @@ export class Auth {
         year: 'numeric',
       }),
     };
-
-    this.currentUser.set(user);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    // Save user to data base
+    const register_data = {
+      username: payload.name,
+      email: payload.email,
+      password: payload.password
+    };
+    this.api.registerUser(register_data).subscribe({
+      next: (res) => {
+        console.log(res);
+        this.snack.openSnackBar("Register Succesful", "Close");
+        // this.currentUser.set(user);
+        // localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      },
+      error: (err) => {
+        console.log(err);
+        this.snack.openSnackBar("Register Failed", "Close");
+      }
+    });
   }
 
   logout(): void {
