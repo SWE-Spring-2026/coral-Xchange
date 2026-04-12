@@ -52,7 +52,7 @@ export class Auth {
         this.api.userInfo({
           headers: 
           {
-            Authorization: `Bearer ${res.token}`
+            'Authorization': `Bearer ${res.token}`
           } 
         }).subscribe({
           next: (res) => {
@@ -112,6 +112,18 @@ export class Auth {
   logout(): void {
     this.currentUser.set(null);
     localStorage.removeItem(STORAGE_KEY);
+  }
+
+  getToken(): any
+  {
+    // Return token of current user
+    const stored = localStorage.getItem("token");
+
+    if(!stored)
+    {
+      return null;
+    }
+    return stored;
   }
 
   private createUsername(email: string, name: string): string {

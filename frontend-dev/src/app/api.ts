@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Auth } from './auth/auth';
 
 @Injectable({providedIn: 'root'})
 
@@ -16,10 +17,10 @@ export class Api {
   private http = inject(HttpClient);
 
   // get singular quote for stock from symbol name
-  getQuote(symbol: string): Observable<any> 
+  getQuote(symbol: string, headers: HttpHeaders): Observable<any> 
   {
     // using backend api
-    return this.http.get(`${this.backend_api_url}quote/${symbol}`);
+    return this.http.get(`${this.backend_api_url}quote/${symbol}`, { headers });
   }
 
   // get intraday history for stock symbol (currently getting from fixed dates, and only hour interval)

@@ -8,6 +8,9 @@ import { AgCharts } from "ag-charts-angular";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { order_select } from "./drop_down";
+import { Auth } from "../auth/auth";
+import { snack_bar } from "../snack_bar";
+import { HttpHeaders } from "@angular/common/http";
 
 @Component 
 ({
@@ -34,12 +37,15 @@ export class stocks {
     ]});
     // create api object for calls from api class
     private api = inject(Api);
+    private auth = inject(Auth);
+    private snack = inject(snack_bar);
     public stock_chart = signal(new stock_chart());
-    
+
     // load posts from api call
     load_quote(symbol: string): void 
     {
-        this.api.getQuote(symbol).subscribe((data) => {
+        const header = new HttpHeaders().set('Authorization', `Bearer ${this.auth.getToken()}`);
+        this.api.getQuote(symbol, header).subscribe((data) => {
             this.posts.set(data);
         });
     }
@@ -48,9 +54,16 @@ export class stocks {
     on_submit()
     {
         // load quote data from searched stock
-        this.load_quote(this.stock_name.value);
-        this.load_intra(this.stock_name.value);
-        this.show_chart = true;
+        if(!this.auth.isLoggedIn())
+        {
+            this.snack.openSnackBar("Must be logged in to use", "Close");
+        }
+        else
+        {
+            this.load_quote(this.stock_name.value);
+            this.load_intra(this.stock_name.value);
+            this.show_chart = true;
+        }
     }
 
     // load intraday data (for chart)
