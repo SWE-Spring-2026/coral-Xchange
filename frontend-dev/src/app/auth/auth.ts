@@ -6,7 +6,8 @@ export interface AppUser {
   name: string;
   username: string;
   email: string;
-  memberSince: string; // maybe use Date
+  memberSince: string;
+  balance: number; // maybe use Date
 }
 
 export interface SignUpPayload {
@@ -22,6 +23,7 @@ const DEFAULT_USER: AppUser = {
   username: 'cdiaz',
   email: 'carlos.diaz@example.com',
   memberSince: 'January 2026',
+  balance: 0
 };
 
 @Injectable({
@@ -42,8 +44,6 @@ export class Auth {
       password: password,
     };
 
-    let req_res = null;
-
     this.api.loginUser(login_data).subscribe({
       next: (res) => {
         // Store token for user, to be used in all other api calls
@@ -57,15 +57,34 @@ export class Auth {
         }).subscribe({
           next: (res) => {
             // Create user from result, set as user and set in local storage
-            const user: AppUser = {
+            const base_user: AppUser = {
               name: res.username,
               username: res.username,
               email: res.email,
-              memberSince: res.createdAt
+              memberSince: res.createdAt,
+              balance: 0,
             };
-            this.currentUser.set(user);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-            this.snack.openSnackBar("Login Succesful", "Close");
+            // Get the cash of current user
+            this.api.userBalance({
+              headers:
+              {
+                'Authorization': `Bearer ${localStorage.getItem("token")}`
+              }
+            }).subscribe({
+              next: (res) => {
+                const full_user: AppUser = 
+                {
+                  ...base_user,
+                  balance: res.cashBalance
+                };
+                this.currentUser.set(full_user);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(full_user));
+                this.snack.openSnackBar("Login Succesful", "Close");
+              },
+              error: (err) => {
+                console.log(err);
+              }
+            });
           },
           error: (err) => {
             console.log(err);
@@ -80,15 +99,6 @@ export class Auth {
   }
 
   registerLocalUser(payload: SignUpPayload): void {
-    const user: AppUser = {
-      name: payload.name.trim(),
-      username: this.createUsername(payload.email, payload.name),
-      email: payload.email.trim().toLowerCase(),
-      memberSince: new Date().toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric',
-      }),
-    };
     // Save user to data base
     const register_data = {
       username: payload.name,

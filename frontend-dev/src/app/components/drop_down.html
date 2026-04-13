@@ -1,6 +1,6 @@
 <mat-form-field>
     <mat-label>Order Type</mat-label>
-    <mat-select>
+    <mat-select (selectionChange)="onChange($event.value)">
         @for(order of orders; track order)
         {
             <mat-option [value]="order.value"> {{order.view_value}} </mat-option>

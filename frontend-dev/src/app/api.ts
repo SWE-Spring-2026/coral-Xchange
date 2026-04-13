@@ -27,7 +27,7 @@ export class Api {
   // still using direct call to api, will update once backend has intraday endpoint
   getIntraday(symbol: string): Observable<any> 
   {
-    return this.http.get(`${this.url}/data/intraday?symbols=${symbol}&api_token=${this.key}&interval=hour&date_from=2026-03-09&date_to=2026-03-13&sort=asc`)
+    return this.http.get(`${this.url}/data/intraday?symbols=${symbol}&api_token=${this.key}&interval=hour&date_from=2026-03-09&sort=asc`)
   }
 
   // get news based on type of news passed in
@@ -52,5 +52,16 @@ export class Api {
   userInfo(token: any): Observable<any>
   {
     return this.http.get(`${this.backend_api_url}auth/me`, token);
+  }
+
+  // request user cash balance
+  userBalance(handler: any): Observable<any>
+  {
+    return this.http.get(`${this.backend_api_url}account`, handler);
+  }
+
+  placeOrder(handler: any, body: any): Observable<any>
+  {
+    return this.http.post(`${this.backend_api_url}trade`, body, handler);
   }
 }
