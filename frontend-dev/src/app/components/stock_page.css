@@ -152,3 +152,8 @@ ag-charts {
     width: 100%;
     height: 100%;   
 }
+
+.place-order
+{
+    align-self: center;
+}

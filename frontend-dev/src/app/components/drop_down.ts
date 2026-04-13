@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
@@ -18,10 +18,17 @@ interface order
 
 export class order_select
 {
+  @Output() selectionChange = new EventEmitter<string>();
+
   orders: order[] = [
     {value: 'buy-0', view_value: 'Buy Order'},
     {value: 'sell-1', view_value: 'Sell Order'},
     {value: 'stop-2', view_value: 'Stop Order'},
   ];
+
+    onChange(value: string) 
+    {
+      this.selectionChange.emit(value);
+  }
 }
 

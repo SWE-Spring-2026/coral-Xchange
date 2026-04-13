@@ -6,11 +6,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
+	"strings"
 	"github.com/gin-gonic/gin"
 	_ "github.com/glebarez/go-sqlite"
 	"github.com/joho/godotenv"
-	cors "github.com/rs/cors/wrapper/gin"
+	cors "github.com/gin-contrib/cors"
 )
 
 var db *sql.DB
@@ -45,7 +45,14 @@ func main() {
 	initDatabase(db)
 
 	r := gin.Default()
-	r.Use(cors.Default())
+	r.Use(cors.New(cors.Config{
+		AllowOriginFunc: func(origin string) bool {
+        	return strings.HasPrefix(origin, "http://localhost:")
+    	},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+    	AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+    	AllowCredentials: true,
+	}))
 
 	r.GET("/", welcome)
 

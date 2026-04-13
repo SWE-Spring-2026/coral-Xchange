@@ -62,7 +62,26 @@
                     </button>
                 </div>
             </div>
-            <order_select class="drop-down"></order_select>
+            <order_select (selectionChange)="orderChange($event)" class="drop-down"></order_select>
+            <div class="place-order">
+                <button matFab extended (click)="makeTrade(order_type().valueOf())">
+                    <mat-icon>shopping_cart</mat-icon>
+                    Place
+                    @if(order_type().valueOf() == 'buy-0')
+                    {
+                        Buy
+                    }
+                    @else if(order_type().valueOf() == 'sell-1')
+                    {
+                        Sell
+                    }
+                    @else if(order_type().valueOf() == 'stop-2')
+                    {
+                        Stop
+                    }
+                    Order
+                </button>
+            </div>
         </div>
     <div class="right-panel"> 
         </div>

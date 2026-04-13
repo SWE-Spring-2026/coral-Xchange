@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Auth } from './auth/auth';
 
 @Injectable({providedIn: 'root'})
 
@@ -16,22 +17,51 @@ export class Api {
   private http = inject(HttpClient);
 
   // get singular quote for stock from symbol name
-  getQuote(symbol: string): Observable<any> 
+  getQuote(symbol: string, headers: HttpHeaders): Observable<any> 
   {
     // using backend api
-    return this.http.get(`${this.backend_api_url}quote/${symbol}`);
+    return this.http.get(`${this.backend_api_url}quote/${symbol}`, { headers });
   }
 
   // get intraday history for stock symbol (currently getting from fixed dates, and only hour interval)
   // still using direct call to api, will update once backend has intraday endpoint
   getIntraday(symbol: string): Observable<any> 
   {
-    return this.http.get(`${this.url}/data/intraday?symbols=${symbol}&api_token=${this.key}&interval=hour&date_from=2026-03-09&date_to=2026-03-13&sort=asc`)
+    return this.http.get(`${this.url}/data/intraday?symbols=${symbol}&api_token=${this.key}&interval=hour&date_from=2026-03-09&sort=asc`)
   }
 
   // get news based on type of news passed in
   getNews(news_type: string): Observable<any>
   {
     return this.http.get(`${this.url_news}news?category=${news_type}&token=${this.key_news}`);
+  }
+
+  // register new user request
+  registerUser(register_data: any): Observable<any>
+  {
+    return this.http.post(`${this.backend_api_url}auth/register`, register_data);
+  }
+
+  // login user request
+  loginUser(login_data: any): Observable<any>
+  {
+    return this.http.post(`${this.backend_api_url}auth/login`, login_data);
+  }
+
+  // request user information
+  userInfo(token: any): Observable<any>
+  {
+    return this.http.get(`${this.backend_api_url}auth/me`, token);
+  }
+
+  // request user cash balance
+  userBalance(handler: any): Observable<any>
+  {
+    return this.http.get(`${this.backend_api_url}account`, handler);
+  }
+
+  placeOrder(handler: any, body: any): Observable<any>
+  {
+    return this.http.post(`${this.backend_api_url}trade`, body, handler);
   }
 }

@@ -8,6 +8,9 @@ import { AgCharts } from "ag-charts-angular";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { order_select } from "./drop_down";
+import { Auth } from "../auth/auth";
+import { snack_bar } from "../snack_bar";
+import { HttpHeaders } from "@angular/common/http";
 
 @Component 
 ({
@@ -34,12 +37,15 @@ export class stocks {
     ]});
     // create api object for calls from api class
     private api = inject(Api);
+    private auth = inject(Auth);
+    private snack = inject(snack_bar);
     public stock_chart = signal(new stock_chart());
-    
+    public order_type = signal("");
     // load posts from api call
     load_quote(symbol: string): void 
     {
-        this.api.getQuote(symbol).subscribe((data) => {
+        const header = new HttpHeaders().set('Authorization', `Bearer ${this.auth.getToken()}`);
+        this.api.getQuote(symbol, header).subscribe((data) => {
             this.posts.set(data);
         });
     }
@@ -48,9 +54,16 @@ export class stocks {
     on_submit()
     {
         // load quote data from searched stock
-        this.load_quote(this.stock_name.value);
-        this.load_intra(this.stock_name.value);
-        this.show_chart = true;
+        if(!this.auth.isLoggedIn())
+        {
+            this.snack.openSnackBar("Must be logged in to use", "Close");
+        }
+        else
+        {
+            this.load_quote(this.stock_name.value);
+            this.load_intra(this.stock_name.value);
+            this.show_chart = true;
+        }
     }
 
     // load intraday data (for chart)
@@ -74,6 +87,72 @@ export class stocks {
     decrease_count()
     {
         const current_val = this.stock_amount.value;
-        this.stock_amount.setValue(current_val - 1)
+        if(current_val >= 1)
+        {
+            this.stock_amount.setValue(current_val - 1)
+        }
+    }
+
+    makeTrade(type: string)
+    {
+        if(type == 'buy-0')
+        {
+            this.api.placeOrder(
+                {
+                    headers: 
+                    {
+                        'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    }
+                }, 
+                {
+                    symbol: `${this.stock_name.value}`,
+                    side: 'BUY',
+                    quantity: this.stock_amount.value
+                }
+            ).subscribe({
+                next: (res) => {
+                    this.snack.openSnackBar(`Succesful buy order, Quant:${this.stock_amount.value}`, "Close");
+                },
+                error: (err) => {
+                    console.log(err);
+                }
+            });
+        }
+        else if(type == 'sell-1')
+        {
+            this.api.placeOrder(
+                {
+                    headers: 
+                    {
+                        'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    }
+                }, 
+                {
+                    symbol: `${this.stock_name.value}`,
+                    side: 'SELL',
+                    quantity: this.stock_amount.value
+                }
+            ).subscribe({
+                next: (res) => {
+                    this.snack.openSnackBar(`Succesful sell order, Quant:${this.stock_amount.value}`, "Close");
+                },
+                error: (err) => {
+                    console.log(err);
+                }
+            });
+        }
+        else if(type == 'stop-2')
+        {
+            // TODO when backend has stop order 
+        }
+        else
+        {
+            this.snack.openSnackBar("No order type selected", "Close");
+        }
+    }
+
+    orderChange(value: string)
+    {
+        this.order_type.set(value);
     }
 }
