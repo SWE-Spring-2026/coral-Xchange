@@ -36,7 +36,7 @@ export class Auth {
   private api = inject(Api);
   private snack = inject(snack_bar);
 
-  login(username: string, password: string): void {
+  login(username: string, password: string): boolean {
     // Attempt to login with user infromation
     const login_data = 
     {
@@ -80,6 +80,7 @@ export class Auth {
                 this.currentUser.set(full_user);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(full_user));
                 this.snack.openSnackBar("Login Succesful", "Close");
+                return true;
               },
               error: (err) => {
                 console.log(err);
@@ -96,6 +97,7 @@ export class Auth {
         this.snack.openSnackBar("Incorrect Username/Password", "Close");
       }
     });
+    return false;
   }
 
   registerLocalUser(payload: SignUpPayload): void {
