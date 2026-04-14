@@ -89,7 +89,44 @@ func getTrades(c *gin.Context) {
 	})
 }
 
-// POST /api/v1/trade
+type QuoteResponse struct {
+	Data []struct {
+		Ticker        string  `json:"ticker"`
+		Name          string  `json:"name"`
+		Price         float64 `json:"price"`
+		DayHigh       float64 `json:"day_high"`
+		DayLow        float64 `json:"day_low"`
+		DayOpen       float64 `json:"day_open"`
+		DayChange     float64 `json:"day_change"`
+		Volume        int64   `json:"volume"`
+		YearHigh      float64 `json:"52_week_high"`
+		YearLow       float64 `json:"52_week_low"`
+		LastTradeTime string  `json:"last_trade_time"`
+	} `json:"data"`
+}
+
+func getQuoteData(ticker string) (QuoteResponse, error) {
+	apiToken := os.Getenv("STOCK_API_KEY")
+
+	apiURL := fmt.Sprintf(
+		"https://api.stockdata.org/v1/data/quote?symbols=%s&api_token=%s",
+		ticker, apiToken,
+	)
+
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		return QuoteResponse{}, fmt.Errorf("stock API unreachable: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var quoteRes QuoteResponse
+	if err := json.NewDecoder(resp.Body).Decode(&quoteRes); err != nil {
+		return QuoteResponse{}, fmt.Errorf("failed to parse quote data: %w", err)
+	}
+
+	return quoteRes, nil
+}
+
 func placeTrade(c *gin.Context) {
 	userID := getUserID(c)
 
@@ -109,8 +146,22 @@ func placeTrade(c *gin.Context) {
 		return
 	}
 
+	// Fetch real-time price before doing anything else
+	quoteRes, err := getQuoteData(req.Symbol)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(quoteRes.Data) == 0 {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Ticker not found"})
+		return
+	}
+
+	stockPrice := quoteRes.Data[0].Price
+
 	var balance float64
-	err := db.QueryRow(
+	err = db.QueryRow(
 		"SELECT cash_balance FROM account WHERE user_id = ?", userID,
 	).Scan(&balance)
 	if err != nil {
@@ -120,9 +171,7 @@ func placeTrade(c *gin.Context) {
 
 	switch req.Side {
 	case "BUY":
-		// we'll check if the user has enough cash balance
-		// For simplicity, assume a fixed price of $100 per share
-		tradeCost := float64(req.Quantity) * 100.00
+		tradeCost := float64(req.Quantity) * stockPrice
 		if balance < tradeCost {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Insufficient funds"})
 			return
@@ -144,8 +193,8 @@ func placeTrade(c *gin.Context) {
 
 		if err == sql.ErrNoRows {
 			res, err := db.Exec(
-				"INSERT INTO holdings (user_id, ticker, quantity, price) VALUES (?, ?, ?, 100.00)",
-				userID, req.Symbol, req.Quantity,
+				"INSERT INTO holdings (user_id, ticker, quantity, price) VALUES (?, ?, ?, ?)",
+				userID, req.Symbol, req.Quantity, stockPrice,
 			)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert holding"})
@@ -160,8 +209,8 @@ func placeTrade(c *gin.Context) {
 			return
 		} else {
 			res, err := db.Exec(
-				"UPDATE holdings SET quantity = quantity + ? WHERE user_id = ? AND ticker = ?",
-				req.Quantity, userID, req.Symbol,
+				"UPDATE holdings SET quantity = quantity + ?, price = ? WHERE user_id = ? AND ticker = ?",
+				req.Quantity, stockPrice, userID, req.Symbol,
 			)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update holding"})
@@ -193,7 +242,7 @@ func placeTrade(c *gin.Context) {
 			return
 		}
 
-		tradeProceeds := float64(req.Quantity) * 100.00
+		tradeProceeds := float64(req.Quantity) * stockPrice
 		_, err = db.Exec(
 			"UPDATE account SET cash_balance = cash_balance + ? WHERE user_id = ?",
 			tradeProceeds, userID,
@@ -203,8 +252,8 @@ func placeTrade(c *gin.Context) {
 			return
 		}
 		_, err = db.Exec(
-			"UPDATE holdings SET quantity = quantity - ? WHERE user_id = ? AND ticker = ?",
-			req.Quantity, userID, req.Symbol,
+			"UPDATE holdings SET quantity = quantity - ?, price = ? WHERE user_id = ? AND ticker = ?",
+			req.Quantity, stockPrice, userID, req.Symbol,
 		)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update holdings"})
@@ -222,7 +271,7 @@ func placeTrade(c *gin.Context) {
 		"symbol":        req.Symbol,
 		"side":          req.Side,
 		"quantity":      req.Quantity,
-		"price":         100.00,
+		"price":         stockPrice,
 		"remainingCash": balance,
 	})
 }
@@ -268,41 +317,15 @@ func searchStocks(c *gin.Context) {
 	c.JSON(http.StatusOK, searchRes.Data)
 }
 
-type QuoteResponse struct {
-	Data []struct {
-		Ticker        string  `json:"ticker"`
-		Name          string  `json:"name"`
-		Price         float64 `json:"price"`
-		DayHigh       float64 `json:"day_high"`
-		DayLow        float64 `json:"day_low"`
-		DayOpen       float64 `json:"day_open"`
-		DayChange     float64 `json:"day_change"`
-		Volume        int64   `json:"volume"`
-		YearHigh      float64 `json:"52_week_high"`
-		YearLow       float64 `json:"52_week_low"`
-		LastTradeTime string  `json:"last_trade_time"`
-	} `json:"data"`
-}
+
 
 // GET /api/v1/quote/:ticker
 func getStockQuote(c *gin.Context) {
 	ticker := c.Param("ticker")
-	apiToken := os.Getenv("STOCK_API_KEY")
-	apiURL := fmt.Sprintf(
-		"https://api.stockdata.org/v1/data/quote?symbols=%s&api_token=%s",
-		ticker, apiToken,
-	)
 
-	resp, err := http.Get(apiURL)
+	quoteRes, err := getQuoteData(ticker)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Stock API unreachable"})
-		return
-	}
-	defer resp.Body.Close()
-
-	var quoteRes QuoteResponse
-	if err := json.NewDecoder(resp.Body).Decode(&quoteRes); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse quote data"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
