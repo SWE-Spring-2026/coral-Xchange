@@ -29,7 +29,7 @@ export class LoginPage {
     {
       this.router.navigate(['/user-profile']);
     }
+    this.router.navigate(['/user-profile']);
   }
-
-
+  
 }
