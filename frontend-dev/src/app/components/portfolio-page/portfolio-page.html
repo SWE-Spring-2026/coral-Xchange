@@ -1,0 +1,28 @@
+@if (holdings() != null) {
+
+  <h2>Total Value: {{ holdings()?.totalValue }}</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Quantity</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (h of holdings()?.holdings; track h.ticker) {
+        <tr>
+          <td>{{ h.ticker }}</td>
+          <td>{{ h.quantity }}</td>
+          <td>{{ h.price }}</td>
+        </tr>
+      }
+    </tbody>
+
+  </table>
+
+} @else {
+  <p>Loading portfolio...</p>
+}

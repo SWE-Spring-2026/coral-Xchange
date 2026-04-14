@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Api } from '../api';
 import { snack_bar } from '../snack_bar';
+import { Observable } from 'rxjs';
 
 export interface AppUser {
   name: string;
@@ -36,14 +37,14 @@ export class Auth {
   private api = inject(Api);
   private snack = inject(snack_bar);
 
-  login(username: string, password: string): boolean {
+  login(username: string, password: string): Observable<boolean> {
     // Attempt to login with user infromation
     const login_data = 
     {
       username: username,
       password: password,
     };
-
+    let ret = false;
     this.api.loginUser(login_data).subscribe({
       next: (res) => {
         // Store token for user, to be used in all other api calls
@@ -80,7 +81,7 @@ export class Auth {
                 this.currentUser.set(full_user);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(full_user));
                 this.snack.openSnackBar("Login Succesful", "Close");
-                return true;
+                return new Observable<true>;
               },
               error: (err) => {
                 console.log(err);
@@ -95,9 +96,10 @@ export class Auth {
       error: (err) => {
         console.log(err);
         this.snack.openSnackBar("Incorrect Username/Password", "Close");
+        return new Observable<false>;
       }
     });
-    return false;
+    return new Observable<false>;
   }
 
   registerLocalUser(payload: SignUpPayload): void {

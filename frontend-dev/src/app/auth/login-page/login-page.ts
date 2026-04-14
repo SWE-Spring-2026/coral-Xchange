@@ -24,12 +24,12 @@ export class LoginPage {
 
   login(): void {
     const {username, password} = this.login_form.getRawValue();
-    const if_success = this.auth.login(username, password);
-    if(if_success)
-    {
-      this.router.navigate(['/user-profile']);
-    }
+    this.auth.login(username, password).subscribe(success => {
+      if(success)
+      {
+        
+      }
+    });
+    this.router.navigate(['/user-profile']);
   }
-
-
 }
