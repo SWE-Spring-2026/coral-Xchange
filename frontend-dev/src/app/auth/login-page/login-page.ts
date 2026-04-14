@@ -24,8 +24,11 @@ export class LoginPage {
 
   login(): void {
     const {username, password} = this.login_form.getRawValue();
-    this.auth.login(username, password);
-    this.router.navigate(['/user-profile']);
+    const if_success = this.auth.login(username, password);
+    if(if_success)
+    {
+      this.router.navigate(['/user-profile']);
+    }
   }
 
 

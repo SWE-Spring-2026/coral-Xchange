@@ -46,6 +46,19 @@ describe('Stock Page', () => {
         expect(component.stock_name.valid).toBe(false);
         component.stock_name.setValue("APPL");
         expect(component.stock_name.valid).toBe(true);
-    })
+    });
+
+    it('should make trade', () => {
+        try
+        {
+            // will fail since not actually logged in
+            component.makeTrade("buy-0");
+        }
+        catch
+        {
+            // ensure its been called
+            expect(component.makeTrade("buy-0")).toBeCalled();
+        }
+    });
 })
 

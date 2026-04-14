@@ -60,6 +60,7 @@ export class Api {
     return this.http.get(`${this.backend_api_url}account`, handler);
   }
 
+  // Place either buy or sell order
   placeOrder(handler: any, body: any): Observable<any>
   {
     return this.http.post(`${this.backend_api_url}trade`, body, handler);

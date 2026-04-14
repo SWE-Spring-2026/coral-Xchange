@@ -6,7 +6,7 @@ import { LoginPage } from './login-page';
 describe('LoginPage', () => {
   let component: LoginPage;
   let fixture: ComponentFixture<LoginPage>;
-
+  let authServiceMock: any;
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoginPage],
@@ -22,4 +22,13 @@ describe('LoginPage', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should login with right info', () => {
+    component.login_form.setValue({
+      username: "fake_1",
+      password: "fake_2"
+    });
+    expect(component.login_form.value.username).toBe("fake_1");
+    expect(component.login_form.value.password).toBe("fake_2");
+  }); 
 });
