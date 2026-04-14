@@ -19,10 +19,15 @@ export class SignUpPage {
   private router = inject(Router);
 
   readonly signUpForm = this.fb.nonNullable.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
     username: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
+
+  get name() {
+  return this.signUpForm.controls.name;
+}
 
   get username() {
     return this.signUpForm.controls.username;
@@ -42,9 +47,9 @@ export class SignUpPage {
       return;
     }
 
-    const { username, email, password } = this.signUpForm.getRawValue();
+    const { name, username, email, password } = this.signUpForm.getRawValue();
 
-    this.auth.register({ username, email, password }).subscribe({
+    this.auth.register({ name, username, email, password }).subscribe({
       next: () => {
         this.router.navigate(['/login']);
       },

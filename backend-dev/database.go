@@ -21,6 +21,7 @@ func initDatabase(database *sql.DB) {
 		// Users table — the anchor for every other table.
 		`CREATE TABLE IF NOT EXISTS users (
 			id            INTEGER PRIMARY KEY AUTOINCREMENT,
+			name 		  TEXT NOT NULL,
 			username      TEXT UNIQUE NOT NULL,
 			email         TEXT UNIQUE NOT NULL,
 			password_hash TEXT NOT NULL,

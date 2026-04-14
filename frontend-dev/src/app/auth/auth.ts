@@ -12,6 +12,7 @@ export interface AppUser {
 }
 
 export interface SignUpPayload {
+  name: string;
   username: string;
   email: string;
   password: string;
@@ -41,7 +42,7 @@ export class Auth {
             this.api.userBalance(this.authOptions(loginRes.token)).pipe(
               map((accountRes) => {
                 const user: AppUser = {
-                  name: meRes.username,
+                  name: meRes.name,
                   username: meRes.username,
                   email: meRes.email,
                   memberSince: meRes.createdAt,
