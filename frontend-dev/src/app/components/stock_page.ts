@@ -95,59 +95,66 @@ export class stocks {
 
     makeTrade(type: string)
     {
-        if(type == 'buy-0')
+        if(this.auth.isLoggedIn())
         {
-            this.api.placeOrder(
-                {
-                    headers: 
+            if(type == 'buy-0')
+            {
+                this.api.placeOrder(
                     {
-                        'Authorization': `Bearer ${localStorage.getItem("token")}`
-                    }
-                }, 
-                {
-                    symbol: `${this.stock_name.value}`,
-                    side: 'BUY',
-                    quantity: this.stock_amount.value
-                }
-            ).subscribe({
-                next: (res) => {
-                    this.snack.openSnackBar(`Succesful buy order, Quant:${this.stock_amount.value}`, "Close");
-                },
-                error: (err) => {
-                    console.log(err);
-                }
-            });
-        }
-        else if(type == 'sell-1')
-        {
-            this.api.placeOrder(
-                {
-                    headers: 
+                        headers: 
+                        {
+                            'Authorization': `Bearer ${localStorage.getItem("token")}`
+                        }
+                    }, 
                     {
-                        'Authorization': `Bearer ${localStorage.getItem("token")}`
+                        symbol: `${this.stock_name.value}`,
+                        side: 'BUY',
+                        quantity: this.stock_amount.value
                     }
-                }, 
-                {
-                    symbol: `${this.stock_name.value}`,
-                    side: 'SELL',
-                    quantity: this.stock_amount.value
-                }
-            ).subscribe({
-                next: (res) => {
-                    this.snack.openSnackBar(`Succesful sell order, Quant:${this.stock_amount.value}`, "Close");
-                },
-                error: (err) => {
-                    console.log(err);
-                }
-            });
-        }
-        else if(type == 'stop-2')
-        {
-            // TODO when backend has stop order 
+                ).subscribe({
+                    next: (res) => {
+                        this.snack.openSnackBar(`Succesful buy order, Quant:${this.stock_amount.value}`, "Close");
+                    },
+                    error: (err) => {
+                        console.log(err);
+                    }
+                });
+            }
+            else if(type == 'sell-1')
+            {
+                this.api.placeOrder(
+                    {
+                        headers: 
+                        {
+                            'Authorization': `Bearer ${localStorage.getItem("token")}`
+                        }
+                    }, 
+                    {
+                        symbol: `${this.stock_name.value}`,
+                        side: 'SELL',
+                        quantity: this.stock_amount.value
+                    }
+                ).subscribe({
+                    next: (res) => {
+                        this.snack.openSnackBar(`Succesful sell order, Quant:${this.stock_amount.value}`, "Close");
+                    },
+                    error: (err) => {
+                        console.log(err);
+                    }
+                });
+            }
+            else if(type == 'stop-2')
+            {
+                // TODO when backend has stop order 
+            }
+            else
+            {
+                this.snack.openSnackBar("No order type selected", "Close");
+            }
         }
         else
         {
-            this.snack.openSnackBar("No order type selected", "Close");
+            this.snack.openSnackBar("Must be logged in to make trades", "Close");
         }
     }
 

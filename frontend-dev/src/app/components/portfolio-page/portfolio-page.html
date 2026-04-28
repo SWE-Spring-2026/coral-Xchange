@@ -1,28 +1,15 @@
-@if (holdings() != null) {
+@if (holdings().totalValue != -1) {
 
-  <h2>Total Value: {{ holdings()?.totalValue }}</h2>
+  @if(show_grid)
+  {
+    <ag-grid-angular 
+      [rowData]="row_data",
+      [columnDefs]="col_defs"
+    />
+  }
 
-  <table>
-    <thead>
-      <tr>
-        <th>Ticker</th>
-        <th>Quantity</th>
-        <th>Price</th>
-      </tr>
-    </thead>
+} 
 
-    <tbody>
-      @for (h of holdings()?.holdings; track h.ticker) {
-        <tr>
-          <td>{{ h.ticker }}</td>
-          <td>{{ h.quantity }}</td>
-          <td>{{ h.price }}</td>
-        </tr>
-      }
-    </tbody>
-
-  </table>
-
-} @else {
+@else {
   <p>Loading portfolio...</p>
 }

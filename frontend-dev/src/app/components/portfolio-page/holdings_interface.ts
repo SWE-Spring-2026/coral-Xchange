@@ -1,12 +1,12 @@
 interface holding
 {
-    ticker?: string,
-    quantity?: number,
-    price?: number,
+    ticker: string,
+    quantity: number,
+    price: number,
 }
 
 export interface Holdings
 {
-    holdings?: holding[],
-    totalValue?: number,
+    holdings: holding[],
+    totalValue: number,
 }

@@ -6,9 +6,9 @@ html, body
 }
 
 .profile-menu {
-    background-color: white !important;
+    background-color: white;
 }
 
 .profile-menu .mat-mdc-menu-item {
-    color: black !important;
+    color: black;
 }
