@@ -65,4 +65,10 @@ export class Api {
   {
     return this.http.post(`${this.backend_api_url}trade`, body, handler);
   }
+
+  // get portfolio data
+  userPortfolio(handler: any): Observable<any>
+  {
+    return this.http.get(`${this.backend_api_url}portfolio`, handler);
+  }
 }

@@ -1,0 +1,15 @@
+@if (holdings().totalValue != -1) {
+
+  @if(show_grid)
+  {
+    <ag-grid-angular 
+      [rowData]="row_data",
+      [columnDefs]="col_defs"
+    />
+  }
+
+} 
+
+@else {
+  <p>Loading portfolio...</p>
+}

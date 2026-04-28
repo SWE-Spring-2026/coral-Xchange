@@ -6,6 +6,7 @@ import { UserProfile } from './components/user-profile/user-profile';
 import { LoginPage } from './auth/login-page/login-page';
 import { SignUpPage } from './auth/sign-up-page/sign-up-page';
 import { DiscoverPage } from './components/discover-page/discover-page';
+import { PortfolioPage } from './components/portfolio-page/portfolio-page';
 
 export const routes: Routes = [
     {path: '', component: home},
@@ -14,4 +15,5 @@ export const routes: Routes = [
     {path: 'login', component: LoginPage},
     {path: 'signup', component: SignUpPage},
     {path: 'discovery', component: DiscoverPage},
+    {path: 'portfolio', component: PortfolioPage},
 ];
