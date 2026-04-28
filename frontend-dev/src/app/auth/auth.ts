@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, catchError, map, switchMap, tap, throwError } from 'rxjs';
 import { Api } from '../api';
 import { snack_bar } from '../snack_bar';
 import { Observable } from 'rxjs';
@@ -8,138 +9,100 @@ export interface AppUser {
   username: string;
   email: string;
   memberSince: string;
-  balance: number; // maybe use Date
+  balance: number;
 }
 
 export interface SignUpPayload {
   name: string;
+  username: string;
   email: string;
   password: string;
 }
 
 const STORAGE_KEY = 'coral-xchange-user';
-
-const DEFAULT_USER: AppUser = {
-  name: 'Carlos Diaz',
-  username: 'cdiaz',
-  email: 'carlos.diaz@example.com',
-  memberSince: 'January 2026',
-  balance: 0
-};
+const TOKEN_KEY = 'coral-xchange-token';
 
 @Injectable({
   providedIn: 'root',
 })
-
 export class Auth {
   currentUser = signal<AppUser | null>(this.loadStoredUser());
   isLoggedIn = computed(() => this.currentUser() !== null);
+
   private api = inject(Api);
   private snack = inject(snack_bar);
 
-  login(username: string, password: string): Observable<boolean> {
-    // Attempt to login with user infromation
-    const login_data = 
-    {
-      username: username,
-      password: password,
-    };
-    let ret = false;
-    this.api.loginUser(login_data).subscribe({
-      next: (res) => {
-        // Store token for user, to be used in all other api calls
-        localStorage.setItem("token", res.token);
-        // Request user information
-        this.api.userInfo({
-          headers: 
-          {
-            'Authorization': `Bearer ${res.token}`
-          } 
-        }).subscribe({
-          next: (res) => {
-            // Create user from result, set as user and set in local storage
-            const base_user: AppUser = {
-              name: res.username,
-              username: res.username,
-              email: res.email,
-              memberSince: res.createdAt,
-              balance: 0,
-            };
-            // Get the cash of current user
-            this.api.userBalance({
-              headers:
-              {
-                'Authorization': `Bearer ${localStorage.getItem("token")}`
-              }
-            }).subscribe({
-              next: (res) => {
-                const full_user: AppUser = 
-                {
-                  ...base_user,
-                  balance: res.cashBalance
+  login(username: string, password: string): Observable<AppUser> {
+    return this.api.loginUser({ username, password }).pipe(
+      tap((loginRes) => {
+        localStorage.setItem(TOKEN_KEY, loginRes.token);
+      }),
+      switchMap((loginRes) =>
+        this.api.userInfo(this.authOptions(loginRes.token)).pipe(
+          switchMap((meRes) =>
+            this.api.userBalance(this.authOptions(loginRes.token)).pipe(
+              map((accountRes) => {
+                const user: AppUser = {
+                  name: meRes.name,
+                  username: meRes.username,
+                  email: meRes.email,
+                  memberSince: meRes.createdAt,
+                  balance: accountRes.cashBalance,
                 };
-                this.currentUser.set(full_user);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(full_user));
-                this.snack.openSnackBar("Login Succesful", "Close");
-                return new Observable<true>;
-              },
-              error: (err) => {
-                console.log(err);
-              }
-            });
-          },
-          error: (err) => {
-            console.log(err);
-          }
-        });
-      },
-      error: (err) => {
-        console.log(err);
-        this.snack.openSnackBar("Incorrect Username/Password", "Close");
-        return new Observable<false>;
-      }
-    });
-    return new Observable<false>;
+                return user;
+              })
+            )
+          )
+        )
+      ),
+      tap((user) => {
+        this.currentUser.set(user);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+        this.snack.openSnackBar('Login successful', 'Close');
+      }),
+      catchError((err) => {
+        this.logout();
+        this.snack.openSnackBar(
+          err?.error?.error ?? 'Incorrect username or password', 'Close');
+        return throwError(() => err);
+      })
+    );
   }
 
-  registerLocalUser(payload: SignUpPayload): void {
-    // Save user to data base
-    const register_data = {
-      username: payload.name,
-      email: payload.email,
-      password: payload.password
-    };
-    this.api.registerUser(register_data).subscribe({
-      next: (res) => {
-        console.log(res);
-        this.snack.openSnackBar("Register Succesful", "Close");
-        // this.currentUser.set(user);
-        // localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-      },
-      error: (err) => {
-        console.log(err);
-        this.snack.openSnackBar("Register Failed", "Close");
-      }
-    });
+  register(payload: SignUpPayload): Observable<any> {
+    return this.api.registerUser(payload).pipe(
+      tap(() => {
+        this.snack.openSnackBar("Registered Successfully!", "Close");
+      }),
+      catchError((err) => {
+        this.snack.openSnackBar(
+          err?.error?.error ?? "Registration Failed", "Close");
+        return throwError(() => err);
+      })
+    );
   }
 
   logout(): void {
     this.currentUser.set(null);
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(TOKEN_KEY);
   }
 
-  getToken(): any
-  {
+  getToken(): string | null {
     // Return token of current user
-    const stored = localStorage.getItem("token");
-
-    if(!stored)
-    {
-      return null;
-    }
-    return stored;
+    return localStorage.getItem(TOKEN_KEY);
   }
 
+  private authOptions(token: string) {
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  }
+
+  // Not sure if we need this function anymore. I think we can just ask for an username at signup
+  // and not generate one from the email. 
   private createUsername(email: string, name: string): string {
     const emailPrefix = email.split('@')[0]?.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
     if (emailPrefix) {
@@ -149,15 +112,19 @@ export class Auth {
   }
 
   private loadStoredUser(): AppUser | null {
+
     const stored = localStorage.getItem(STORAGE_KEY);
 
-    if(!stored) {
+    if (!stored) {
+
       return null;
     }
+
     try {
       return JSON.parse(stored) as AppUser;
-    } catch {}
-    return null;
+    } catch {
+      return null;
+    }
   }
 
   updateBalance() {

@@ -2,22 +2,48 @@
     display: block;
     min-height: calc(100vh - 64px);
     background: #f8fafc;
-    padding: 32px 16px;
-}
+    padding: 40px 16px;
+    }
 
 .login-page {
-    max-width: 700px;
+    max-width: 720px;
     margin: 0 auto;
-}
+    }
 
 .login-card {
     border-radius: 16px;
-    padding: 12px;
-}
+    padding: 20px;
+    }
 
-.demo-user {
-    margin-top: 16px;
-    padding: 16px;
-    border-radius: 12px;
-    background: #f1f5f9;
-}
+mat-card-header {
+    margin-bottom: 24px;
+    padding: 0;
+    }
+
+mat-card-title {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.2;
+    }
+
+mat-card-content {
+    padding: 0;
+    }
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    }
+
+mat-form-field {
+    width: 100%;
+    }
+
+mat-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+    margin-top: 8px;
+    }

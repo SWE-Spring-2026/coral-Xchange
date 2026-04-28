@@ -4,32 +4,48 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { FormControl, Validators, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { MatFormField, MatLabel, MatInput } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatError } from '@angular/material/form-field';
 import { Auth } from '../auth';
 
 @Component({
   selector: 'app-login-page',
-  imports: [RouterLink, MatButtonModule, MatCardModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput],
+  imports: [RouterLink, MatButtonModule, MatCardModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatFormFieldModule, MatError],
   templateUrl: './login-page.html',
   styleUrl: './login-page.css',
 })
 export class LoginPage {
   private auth = inject(Auth);
   private router = inject(Router);
-  private form_builder = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
 
-  readonly login_form = this.form_builder.nonNullable.group({
-    username: [''],
-    password: [''],
+  readonly loginForm = this.formBuilder.nonNullable.group({
+    username: ['', [Validators.required]],
+    password: ['', [Validators.required]],
   });
 
+  get username() {
+    return this.loginForm.controls.username;
+  }
+
+  get password() {
+    return this.loginForm.controls.password;
+  }
+
   login(): void {
-    const {username, password} = this.login_form.getRawValue();
-    this.auth.login(username, password).subscribe(success => {
-      if(success)
-      {
-        
-      }
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    const { username, password } = this.loginForm.getRawValue();
+
+    this.auth.login(username, password).subscribe({
+      next: () => {
+        this.router.navigate(['/user-profile']);
+      },
+      error: () => {
+      },
     });
-    this.router.navigate(['/user-profile']);
   }
 }

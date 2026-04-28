@@ -76,6 +76,7 @@ func getUserID(c *gin.Context) int {
 // POST /api/v1/auth/register
 func register(c *gin.Context) {
 	var req struct {
+		Name     string `json:"name"`
 		Username string `json:"username"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -86,8 +87,8 @@ func register(c *gin.Context) {
 		return
 	}
 
-	if req.Username == "" || req.Email == "" || req.Password == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "username, email, and password are all required"})
+	if req.Name == "" || req.Username == "" || req.Email == "" || req.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "name, username, email, and password are all required"})
 		return
 	}
 
@@ -103,8 +104,8 @@ func register(c *gin.Context) {
 	}
 
 	res, err := db.Exec(
-		"INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-		req.Username, req.Email, string(hash),
+		"INSERT INTO users (name, username, email, password_hash) VALUES (?, ?, ?, ?)",
+		req.Name, req.Username, req.Email, string(hash),
 	)
 	if err != nil {
 		// A UNIQUE constraint violation means the username or email is taken.
@@ -124,6 +125,7 @@ func register(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"message":  "Registration successful",
 		"userID":   userID,
+		"name":     req.Name,
 		"username": req.Username,
 	})
 }
@@ -192,11 +194,11 @@ func login(c *gin.Context) {
 func getMe(c *gin.Context) {
 	userID := getUserID(c)
 
-	var email, createdAt string
+	var name, email, createdAt string
 	var username string
 	err := db.QueryRow(
-		"SELECT username, email, created_at FROM users WHERE id = ?", userID,
-	).Scan(&username, &email, &createdAt)
+		"SELECT name, username, email, created_at FROM users WHERE id = ?", userID,
+	).Scan(&name, &username, &email, &createdAt)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve user info"})
@@ -205,6 +207,7 @@ func getMe(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"userID":    userID,
+		"name":      name,
 		"username":  username,
 		"email":     email,
 		"createdAt": createdAt,
