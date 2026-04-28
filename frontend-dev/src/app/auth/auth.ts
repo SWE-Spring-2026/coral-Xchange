@@ -2,7 +2,6 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, map, switchMap, tap, throwError } from 'rxjs';
 import { Api } from '../api';
 import { snack_bar } from '../snack_bar';
-import { Observable } from 'rxjs';
 
 export interface AppUser {
   name: string;
@@ -127,46 +126,38 @@ export class Auth {
     }
   }
 
-  updateBalance() {
-    this.api.userInfo({
-          headers: 
-          {
-            'Authorization': `Bearer ${localStorage.getItem("token")}`
-          } 
-        }).subscribe({
-          next: (res) => {
-            // Create user from result, set as user and set in local storage
-            const base_user: AppUser = {
-              name: res.username,
-              username: res.username,
-              email: res.email,
-              memberSince: res.createdAt,
-              balance: 0,
-            };
-            // Get the cash of current user
-            this.api.userBalance({
-              headers:
-              {
-                'Authorization': `Bearer ${localStorage.getItem("token")}`
-              }
-            }).subscribe({
-              next: (res) => {
-                const full_user: AppUser = 
-                {
-                  ...base_user,
-                  balance: res.cashBalance
-                };
-                this.currentUser.set(full_user);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(full_user));
-              },
-              error: (err) => {
-                console.log(err);
-              }
-            });
-          },
-          error: (err) => {
-            console.log(err);
-          }
-        });
+updateBalance(): void {
+  const token = this.getToken();
+
+  if (!token) {
+    this.logout();
+    return;
+  }
+
+  this.api.userInfo(this.authOptions(token)).pipe(
+    switchMap((meRes) =>
+      this.api.userBalance(this.authOptions(token)).pipe(
+        map((accountRes) => {
+          const updatedUser: AppUser = {
+            name: meRes.name,
+            username: meRes.username,
+            email: meRes.email,
+            memberSince: meRes.createdAt,
+            balance: accountRes.cashBalance,
+          };
+          return updatedUser;
+        })
+      )
+    )
+  ).subscribe({
+    next: (updatedUser) => {
+      this.currentUser.set(updatedUser);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
+    },
+    error: (err) => {
+      console.log(err);
+      this.snack.openSnackBar('Could not refresh account balance', 'Close');
+    }
+  });
   }
 }

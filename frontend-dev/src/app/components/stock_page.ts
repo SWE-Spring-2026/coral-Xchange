@@ -97,13 +97,19 @@ export class stocks {
     {
         if(this.auth.isLoggedIn())
         {
+            const token = this.auth.getToken();
+            if (!token) {
+                this.snack.openSnackBar("Missing login token. Please log in and try again.", "Close");
+                return;
+            }
+
             if(type == 'buy-0')
             {
                 this.api.placeOrder(
                     {
                         headers: 
                         {
-                            'Authorization': `Bearer ${localStorage.getItem("token")}`
+                            'Authorization': `Bearer ${token}`
                         }
                     }, 
                     {
@@ -128,7 +134,7 @@ export class stocks {
                     {
                         headers: 
                         {
-                            'Authorization': `Bearer ${localStorage.getItem("token")}`
+                            'Authorization': `Bearer ${token}`
                         }
                     }, 
                     {

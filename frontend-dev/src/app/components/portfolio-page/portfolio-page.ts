@@ -46,10 +46,15 @@ export class PortfolioPage implements OnInit{
   ngOnInit(): void {
     if(this.auth.isLoggedIn())
     {
+      const token = this.auth.getToken();
+      if (!token) {
+        console.error('User appears logged in, but no auth token was found.');
+        return;
+      }
       this.api.userPortfolio({
         headers:
         {
-          'Authorization': `Bearer ${localStorage.getItem("token")}`
+          'Authorization': `Bearer ${token}`
         }
       }).subscribe({
         next: (res) => {
