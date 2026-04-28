@@ -20,4 +20,10 @@ describe('PortfolioPage', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should have portfolio data', () => {
+    // Expect holdings to exist from initilization
+    expect(component.holdings().totalValue).toBe(-1);
+    expect(component.holdings().holdings).toBeTruthy();
+  });
 });
