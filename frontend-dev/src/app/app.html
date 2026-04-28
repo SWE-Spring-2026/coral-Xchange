@@ -5,21 +5,31 @@
       <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
       <a mat-button routerLink="/stocks" routerLinkActive="active">Stocks</a>
       <a mat-button routerLink="/discovery" routerLinkActive="active">Discover</a>
+      <a mat-button routerLink="/portfolio" routerLinkActive="active">Portfolio</a>
   </div>
   <span class="spacer"></span>
-  <button mat-icon-button class="profile-icon" [matMenuTriggerFor]="userMenu" routerLinkActive="active-icon" aria-label="User menu">
-    <mat-icon>account_circle</mat-icon>
-  </button>
-  <mat-menu #userMenu="matMenu" class="profile-menu">
-    @if (!auth.isLoggedIn())
-    {
-        <button mat-menu-item routerLink="/login">Log In</button>
-        <button mat-menu-item routerLink="/signup">Sign Up</button>
-    } @else {
-      <button mat-menu-item routerLink="/user-profile">My Profile</button>
-      <button mat-menu-item (click)="logout()">Logout</button>
-    }
-  </mat-menu>
+  <div class="nav-right">
+    <p class="user-balance">
+      @if(user(); as u)
+      {
+        User Balance: ${{ u.balance }}
+      }
+    </p>
+    
+    <button mat-icon-button class="profile-icon" [matMenuTriggerFor]="userMenu" routerLinkActive="active-icon" aria-label="User menu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu" class="profile-menu">
+      @if (!auth.isLoggedIn())
+      {
+          <button mat-menu-item routerLink="/login">Log In</button>
+          <button mat-menu-item routerLink="/signup">Sign Up</button>
+      } @else {
+        <button mat-menu-item routerLink="/user-profile">My Profile</button>
+        <button mat-menu-item (click)="logout()">Logout</button>
+      }
+    </mat-menu>
+  </div>
 </mat-toolbar>
 <router-outlet></router-outlet>
 
