@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { Auth } from './auth/auth';
+import { AppUser } from './auth/auth';
 
 @Component({
   selector: 'app-root',
@@ -21,9 +22,21 @@ export class App {
 
   auth = inject(Auth);
   private router = inject(Router);
+  public user = this.auth.currentUser;
+
 
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/']);
+  }
+
+  set_user(): void
+  {
+    this.user.set(this.auth.currentUser());
+  }
+
+  current_user()
+  {
+    return this.user();
   }
 }

@@ -4,6 +4,7 @@ import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from '@angular/material/button';
 import { Auth } from '../../auth/auth';
+import { Api } from '../../api';
 
 @Component({
   selector: 'app-user-profile',
@@ -14,7 +15,9 @@ import { Auth } from '../../auth/auth';
 export class UserProfile {
   auth = inject(Auth);
   private router = inject(Router);
+  private api = inject(Api);
 
+  
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/']);

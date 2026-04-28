@@ -114,6 +114,8 @@ export class stocks {
                 ).subscribe({
                     next: (res) => {
                         this.snack.openSnackBar(`Succesful buy order, Quant:${this.stock_amount.value}`, "Close");
+                        // after buy order update balance
+                        this.auth.updateBalance();
                     },
                     error: (err) => {
                         console.log(err);
@@ -137,6 +139,7 @@ export class stocks {
                 ).subscribe({
                     next: (res) => {
                         this.snack.openSnackBar(`Succesful sell order, Quant:${this.stock_amount.value}`, "Close");
+                        this.auth.updateBalance();
                     },
                     error: (err) => {
                         console.log(err);
