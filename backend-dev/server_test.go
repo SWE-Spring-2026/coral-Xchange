@@ -727,9 +727,26 @@ func TestGetPortfolio_TotalValueIsCalculated(t *testing.T) {
 	r := setupRouter()
 	token := registerTestUser(t, r)
 
-	// Buy 10 shares @ $100 each → totalValue = $1000
+	symbol := "AAPL"
+	quantity := 10
+
+	quoteRes, err := getQuoteData(symbol)
+	if err != nil {
+		t.Fatalf("failed to fetch quote data: %v", err)
+	}
+
+	if len(quoteRes.Data) == 0 {
+		t.Fatalf("no quote data returned for %s", symbol)
+	}
+
+	price := quoteRes.Data[0].Price
+	expectedValue := price * float64(quantity)
+
+	// BUY shares
 	doRequest(r, "POST", "/api/v1/trade", map[string]interface{}{
-		"symbol": "AAPL", "side": "BUY", "quantity": 10,
+		"symbol": symbol,
+		"side": "BUY",
+		"quantity": quantity,
 	}, token)
 
 	w := doRequest(r, "GET", "/api/v1/portfolio", nil, token)
@@ -737,8 +754,13 @@ func TestGetPortfolio_TotalValueIsCalculated(t *testing.T) {
 	var resp map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &resp)
 
-	if resp["totalValue"] != 1000.00 {
-		t.Errorf("expected totalValue 1000.00, got %v", resp["totalValue"])
+	totalValue := resp["totalValue"].(float64)
+
+	if totalValue != expectedValue {
+		t.Errorf(
+			"expected totalValue %.2f, got %.2f (price %.2f)",
+			expectedValue, totalValue, price,
+		)
 	}
 }
 
@@ -827,16 +849,44 @@ func TestPlaceTrade_BuyDeductsBalance(t *testing.T) {
 	r := setupRouter()
 	token := registerTestUser(t, r)
 
+	symbol := "TSLA"
+	quantity := 10
+
+	// 🔥 Get REAL price (same logic as production code uses)
+	quoteRes, err := getQuoteData(symbol)
+	if err != nil {
+		t.Fatalf("failed to fetch quote data: %v", err)
+	}
+
+	if len(quoteRes.Data) == 0 {
+		t.Fatalf("no quote data returned for %s", symbol)
+	}
+
+	price := quoteRes.Data[0].Price
+	expectedCost := price * float64(quantity)
+
 	doRequest(r, "POST", "/api/v1/trade", map[string]interface{}{
-		"symbol": "TSLA", "side": "BUY", "quantity": 10, // 10 * $100 = $1000
+		"symbol":   symbol,
+		"side":     "BUY",
+		"quantity": quantity,
 	}, token)
 
 	var balance float64
-	db.QueryRow("SELECT cash_balance FROM account WHERE user_id = 1").Scan(&balance)
+	err = db.QueryRow(
+		"SELECT cash_balance FROM account WHERE user_id = 1",
+	).Scan(&balance)
 
-	expected := 100000.00 - 1000.00
+	if err != nil {
+		t.Fatalf("failed to fetch balance: %v", err)
+	}
+
+	expected := 100000.00 - expectedCost
+
 	if balance != expected {
-		t.Errorf("expected balance %.2f after buy, got %.2f", expected, balance)
+		t.Errorf(
+			"expected balance %.2f after buy, got %.2f (price %.2f)",
+			expected, balance, price,
+		)
 	}
 }
 
@@ -969,19 +1019,51 @@ func TestPlaceTrade_SellCreditsBalance(t *testing.T) {
 	r := setupRouter()
 	token := registerTestUser(t, r)
 
+	symbol := "AAPL"
+	buyQty := 20
+	sellQty := 10
+
+	quoteRes, err := getQuoteData(symbol)
+	if err != nil {
+		t.Fatalf("failed to fetch quote data: %v", err)
+	}
+
+	if len(quoteRes.Data) == 0 {
+		t.Fatalf("no quote data returned for %s", symbol)
+	}
+
+	price := quoteRes.Data[0].Price
+
+	// BUY 20 shares
 	doRequest(r, "POST", "/api/v1/trade", map[string]interface{}{
-		"symbol": "AAPL", "side": "BUY", "quantity": 20,
+		"symbol":   symbol,
+		"side":     "BUY",
+		"quantity": buyQty,
 	}, token)
+
+	// SELL 10 shares
 	doRequest(r, "POST", "/api/v1/trade", map[string]interface{}{
-		"symbol": "AAPL", "side": "SELL", "quantity": 10,
+		"symbol":   symbol,
+		"side":     "SELL",
+		"quantity": sellQty,
 	}, token)
 
 	var balance float64
-	db.QueryRow("SELECT cash_balance FROM account WHERE user_id = 1").Scan(&balance)
+	err = db.QueryRow(
+		"SELECT cash_balance FROM account WHERE user_id = 1",
+	).Scan(&balance)
 
-	// 100000 - (20*100) + (10*100) = 99000
-	if balance != 99000.00 {
-		t.Errorf("expected balance 99000.00 after buy+sell, got %.2f", balance)
+	if err != nil {
+		t.Fatalf("failed to fetch balance: %v", err)
+	}
+
+	expected := 100000.00 - (float64(buyQty) * price) + (float64(sellQty) * price)
+
+	if balance != expected {
+		t.Errorf(
+			"expected balance %.2f after buy+sell, got %.2f (price %.2f)",
+			expected, balance, price,
+		)
 	}
 }
 
@@ -1269,34 +1351,66 @@ func TestTradeSequence_BalanceConsistency(t *testing.T) {
 	r := setupRouter()
 	token := registerTestUser(t, r)
 
-	// Step 1: buy 50 shares of TSLA @ $100 → cost $5000
+	symbol := "TSLA"
+
+	quoteRes, err := getQuoteData(symbol)
+	if err != nil {
+		t.Fatalf("failed to fetch quote data: %v", err)
+	}
+
+	if len(quoteRes.Data) == 0 {
+		t.Fatalf("no quote data returned for %s", symbol)
+	}
+
+	price := quoteRes.Data[0].Price
+
+	// Step 1: BUY 50
 	doRequest(r, "POST", "/api/v1/trade", map[string]interface{}{
-		"symbol": "TSLA", "side": "BUY", "quantity": 50,
+		"symbol": symbol, "side": "BUY", "quantity": 50,
 	}, token)
 
-	// Step 2: sell 20 → proceeds $2000
+	// Step 2: SELL 20
 	doRequest(r, "POST", "/api/v1/trade", map[string]interface{}{
-		"symbol": "TSLA", "side": "SELL", "quantity": 20,
+		"symbol": symbol, "side": "SELL", "quantity": 20,
 	}, token)
 
-	// Step 3: buy 10 more → cost $1000
+	// Step 3: BUY 10
 	doRequest(r, "POST", "/api/v1/trade", map[string]interface{}{
-		"symbol": "TSLA", "side": "BUY", "quantity": 10,
+		"symbol": symbol, "side": "BUY", "quantity": 10,
 	}, token)
 
 	var balance float64
-	db.QueryRow("SELECT cash_balance FROM account WHERE user_id = 1").Scan(&balance)
+	err = db.QueryRow(
+		"SELECT cash_balance FROM account WHERE user_id = 1",
+	).Scan(&balance)
 
-	// 100000 - 5000 + 2000 - 1000 = 96000
-	if balance != 96000.00 {
-		t.Errorf("expected balance 96000.00 after trade sequence, got %.2f", balance)
+	if err != nil {
+		t.Fatalf("failed to fetch balance: %v", err)
+	}
+
+	expected := 100000.00 -
+		(50 * price) +
+		(20 * price) -
+		(10 * price)
+
+	if balance != expected {
+		t.Errorf(
+			"expected balance %.2f, got %.2f (price %.2f)",
+			expected, balance, price,
+		)
 	}
 
 	var qty int
-	db.QueryRow("SELECT quantity FROM holdings WHERE user_id = 1 AND ticker = 'TSLA'").Scan(&qty)
+	err = db.QueryRow(
+		"SELECT quantity FROM holdings WHERE user_id = 1 AND ticker = ?",
+		symbol,
+	).Scan(&qty)
 
-	// 50 - 20 + 10 = 40
+	if err != nil {
+		t.Fatalf("failed to fetch holdings: %v", err)
+	}
+
 	if qty != 40 {
-		t.Errorf("expected TSLA quantity 40 after sequence, got %d", qty)
+		t.Errorf("expected TSLA quantity 40, got %d", qty)
 	}
 }
