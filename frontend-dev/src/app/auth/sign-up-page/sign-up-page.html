@@ -108,13 +108,38 @@
                 <p class="field-error">Passwords do not match.</p>
             }
 
+            <div class="optional-section">
+                <p class="optional-title">Optional profile details</p>
+
+                <mat-form-field appearance="outline">
+                <mat-label>Trading Experience</mat-label>
+                <mat-select formControlName="tradingExperience">
+                    <mat-option value="">Prefer not to say</mat-option>
+
+                    @for (option of tradingExperienceOptions; track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                    }
+                </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                <mat-label>Interested Sectors</mat-label>
+                <mat-select formControlName="interestedSectors" multiple>
+                    @for (sector of sectorOptions; track sector) {
+                    <mat-option [value]="sector">{{ sector }}</mat-option>
+                    }
+                </mat-select>
+                </mat-form-field>
+            </div>
+
+            <p class="paper-trading-note"> Coral-Xchange is a paper-trading platform. Your account uses virtual cash only, and no real trades are placed.</p>
+
             <div class="form-actions">
-                <button mat-raised-button type="submit">Create Account</button>
-                <a mat-button routerLink="/login">Go to Log In</a>
+                <button mat-raised-button class="create-account-button" type="submit">Create Account</button>
+                <a mat-button routerLink="/login" class="login-link">Already have an account? Log in</a>
             </div>
             </form>
         </mat-card-content>
         </mat-card>
-    
     </section>
 </div>

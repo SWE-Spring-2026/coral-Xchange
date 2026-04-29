@@ -78,6 +78,7 @@
     backdrop-filter: blur(10px);
 }
 
+
 .step-number {
     display: flex;
     align-items: center;
@@ -93,27 +94,101 @@
 }
 
 .signup-card {
-    border-radius: 16px;
-    padding: 12px;
+    width: 100%;
+    border-radius: 24px;
+    padding: 14px;
+    border: 1px solid rgba(15, 21, 99, 0.16);
+    box-shadow: 0 24px 70px rgba(6, 18, 82, 0.28);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.signup-card mat-card-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0f1563;
+}
+
+.signup-card mat-card-subtitle {
+    color: #31406f;
+    font-weight: 500;
+    margin: 8px 0 0;
 }
 
 .helper-text {
-    margin-bottom: 20px;
+  margin: 8px 0 24px;
+  line-height: 1.6;
 }
 
 .signup-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
 }
 
 mat-form-field {
     width: 100%;
 }
 
+/* This is for the confirm password error message */
+.field-error { 
+    margin: -16px 0 0;
+    color: #b3261e;
+    font-size: 0.85rem;
+    font-weight: 450;
+}
+
+.optional-section {
+    margin-top: 4px;
+    padding: 18px;
+    border-radius: 18px;
+    background: #f4f8ff;
+    border: 1px solid #dce8ff;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.optional-title {
+    margin: 0;
+    font-weight: 500;
+    color: #0f1563;
+}
+
+.paper-trading-note {
+    margin: 4px 0 0;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #eef7ff;
+    color: #16456f;
+    border: 1px solid #cde8fb;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
 .form-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 14px;
     align-items: center;
+    margin-top: 8px;
+}
+
+.create-account-button {
+    min-height: 44px;
+    padding: 0 28px;
+    border-radius: 999px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: white;
+    background: linear-gradient(135deg, #0f1563 0%, #0d47a1 50%, #0277bd 100%);
+    box-shadow: 0 12px 24px rgba(15, 21, 99, 0.28);
+}
+
+.create-account-button:hover {
+    filter: brightness(1.06);
+}
+
+.login-link {
+    color: #0277bd;
+    font-weight: 600;
 }
