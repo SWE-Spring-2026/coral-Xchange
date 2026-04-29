@@ -5,8 +5,10 @@ import { Auth } from '../../auth/auth';
 import { AgGridAngular } from "ag-grid-angular";
 import type { ColDef } from "ag-grid-community";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+import { portfolio_chart } from './portfolio-chart';
 
-ModuleRegistry.registerModules([ AllCommunityModule ]);
+ModuleRegistry.registerModules([ AllCommunityModule]);
+
 
 // I-Row interface for grid
 interface IRow 
@@ -18,7 +20,7 @@ interface IRow
 
 @Component({
   selector: 'app-portfolio-page',
-  imports: [AgGridAngular],
+  imports: [AgGridAngular, portfolio_chart],
   templateUrl: './portfolio-page.html',
   styleUrl: './portfolio-page.css',
 })

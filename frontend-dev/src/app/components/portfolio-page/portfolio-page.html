@@ -2,14 +2,21 @@
 
   @if(show_grid)
   {
-    <ag-grid-angular 
-      [rowData]="row_data",
-      [columnDefs]="col_defs"
-    />
+    <div class="portfolio-layout">
+      <div class="ag-grid-wrapper">
+        <ag-grid-angular 
+          class="grid"
+          [rowData]="row_data"
+          [columnDefs]="col_defs">
+        </ag-grid-angular>
+      </div>
+
+      <div class="chart-wrapper">
+        <portfolio-chart></portfolio-chart>
+      </div>
+    </div>
   }
 
-} 
-
-@else {
+} @else {
   <p>Loading portfolio...</p>
 }
