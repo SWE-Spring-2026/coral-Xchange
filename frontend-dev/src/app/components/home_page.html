@@ -1,56 +1,125 @@
-<!-- 
-    add welcome section info, like a little message
-    also add button that will link to login/signup page
--->
-<section class="welcome-container">
-    <div class="welcome-content">
-        <h1>Coral-Xchange</h1>
-        <p></p>
+<!-- Hero Section -->
+<section class="hero">
+
+  <!-- Animated light caustic rings (CSS only) -->
+  <div class="caustics" aria-hidden="true">
+    <div class="caustic c1"></div>
+    <div class="caustic c2"></div>
+    <div class="caustic c3"></div>
+    <div class="caustic c4"></div>
+  </div>
+
+  <!-- Floating particles -->
+  <div class="particles" aria-hidden="true">
+    <span class="p p1"></span>
+    <span class="p p2"></span>
+    <span class="p p3"></span>
+    <span class="p p4"></span>
+    <span class="p p5"></span>
+    <span class="p p6"></span>
+    <span class="p p7"></span>
+    <span class="p p8"></span>
+  </div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">Paper Trading Platform</p>
+    <h1 class="hero-headline">
+      Trade the<br>
+      <em>depths</em> without<br>
+      the risk.
+    </h1>
+    <p class="hero-sub">
+      Real market data. Zero real money. The perfect environment<br>
+      to sharpen your trading instincts.
+    </p>
+    <div class="hero-actions">
+      <a routerLink="/signup" class="btn-primary">Start Trading Free</a>
+      <a routerLink="/stocks" class="btn-ghost">View Markets →</a>
     </div>
+  </div>
+
+  <!-- Wave divider at the bottom -->
+  <div class="wave-divider" aria-hidden="true">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#040f1f"/>
+    </svg>
+  </div>
 </section>
 
-<!-- card section 
-    add info on what the app offers in terms of paper trading 
--->
-<section class="cards">
-        <mat-card class="card-container" appearance="outlined">
-            <mat-card-header>
-                <mat-card-title>Real Time Stock Trading</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                <p>
-                    Experience and practice trading in real time without the risks.
-                </p>
-            </mat-card-content>
-        </mat-card>
-                <mat-card class="card-container" appearance="outlined">
-            <mat-card-header>
-                <mat-card-title>Profile Statistics</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                <p>
-                    Track your trading performace from your profile dashboard.
-                </p>
-            </mat-card-content>
-        </mat-card>
-                <mat-card class="card-container" appearance="outlined">
-            <mat-card-header>
-                <mat-card-title>Stay Informed</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                <p>
-                    Search over news articles to keep up with whats happening in the world.
-                </p>
-            </mat-card-content>
-        </mat-card>
-                <mat-card class="card-container" appearance="outlined">
-            <mat-card-header>
-                <mat-card-title>Ready?</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                <p>
-                    Sign up today!
-                </p>
-            </mat-card-content>
-        </mat-card>
+<!-- Stats bar -->
+<section class="stats-bar">
+  <div class="stat">
+    <span class="stat-value">$100,000</span>
+    <span class="stat-label">Starting Balance</span>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <span class="stat-value">Real-Time</span>
+    <span class="stat-label">Market Data</span>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <span class="stat-value">Zero</span>
+    <span class="stat-label">Financial Risk</span>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat">
+    <span class="stat-value">Free</span>
+    <span class="stat-label">Always</span>
+  </div>
+</section>
+
+<!-- Feature Cards -->
+<section class="features">
+  <p class="section-label">What We Offer</p>
+  <h2 class="section-headline">Everything you need to learn the market</h2>
+
+  <div class="cards-grid">
+
+    <div class="feature-card">
+      <div class="card-icon">
+        <span class="material-icons">trending_up</span>
+      </div>
+      <h3>Live Stock Data</h3>
+      <p>Search any ticker and get real-time quotes, price history, and intraday charts powered by live market feeds.</p>
+      <div class="card-glow"></div>
+    </div>
+
+    <div class="feature-card">
+      <div class="card-icon">
+        <span class="material-icons">account_balance_wallet</span>
+      </div>
+      <h3>Paper Portfolio</h3>
+      <p>Start with $100,000 in virtual cash. Buy, sell, and track your holdings with the same mechanics as real platforms.</p>
+      <div class="card-glow"></div>
+    </div>
+
+    <div class="feature-card">
+      <div class="card-icon">
+        <span class="material-icons">newspaper</span>
+      </div>
+      <h3>Market News</h3>
+      <p>Stay ahead with curated financial news. Understand the events driving market moves before you place a trade.</p>
+      <div class="card-glow"></div>
+    </div>
+
+    <div class="feature-card">
+      <div class="card-icon">
+        <span class="material-icons">bar_chart</span>
+      </div>
+      <h3>Order Types</h3>
+      <p>Practice buy orders, sell orders, and stop orders — the building blocks of every real-world trading strategy.</p>
+      <div class="card-glow"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to dive in?</h2>
+    <p>Create a free account and start practicing today. No credit card required.</p>
+    <a routerLink="/signup" class="btn-primary btn-large">Create Free Account</a>
+  </div>
 </section>

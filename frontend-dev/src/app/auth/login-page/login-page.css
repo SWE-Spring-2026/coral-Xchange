@@ -1,49 +1,239 @@
+/* ============================================================
+   LOGIN PAGE — Abyssal Luxury theme
+   ============================================================ */
+
 :host {
-    display: block;
-    min-height: calc(100vh - 64px);
-    background: #f8fafc;
-    padding: 40px 16px;
-    }
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  min-height: calc(100vh - 60px);
+  background: #020d1a;
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
 
 .login-page {
-    max-width: 720px;
-    margin: 0 auto;
-    }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 60px);
+}
+
+/* ── Left brand panel ───────────────────────────────────────── */
+
+.login-brand {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 60px 64px;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 20%, rgba(0,201,177,0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 20% 80%, rgba(0,100,180,0.20) 0%, transparent 55%),
+    linear-gradient(160deg, #031220 0%, #020d1a 50%, #031d36 100%);
+  border-right: 1px solid rgba(0, 201, 177, 0.12);
+}
+
+.brand-content {
+  position: relative;
+  z-index: 2;
+  animation: panel-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes panel-reveal {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.brand-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #00c9b1;
+  margin: 0 0 20px;
+}
+
+.brand-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(44px, 5vw, 72px);
+  font-weight: 300;
+  line-height: 1.05;
+  color: #f0fdfa;
+  margin: 0 0 24px;
+  letter-spacing: -0.02em;
+}
+
+.brand-headline em {
+  font-style: italic;
+  background: linear-gradient(90deg, #00c9b1, #4ae8d0, #00c9b1);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+.brand-sub {
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #94d8d0;
+  margin: 0;
+  max-width: 320px;
+}
+
+/* ── Caustic rings (decorative) ─────────────────────────────── */
+
+.caustics {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.caustic {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 201, 177, 0.10);
+  animation: caustic-pulse 8s ease-in-out infinite;
+}
+
+.c1 { width: 480px; height: 480px; top: -120px; right: -140px; animation-delay: 0s; }
+.c2 { width: 320px; height: 320px; top:  -40px; right:  -40px; animation-delay: 2s; border-color: rgba(74, 232, 208, 0.07); }
+.c3 { width: 600px; height: 600px; bottom: -200px; left: -180px; animation-delay: 4s; border-color: rgba(0, 150, 200, 0.06); }
+
+@keyframes caustic-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.6; }
+  50%       { transform: scale(1.05); opacity: 1;   }
+}
+
+/* ── Right form panel ───────────────────────────────────────── */
+
+.login-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 48px;
+  background: #020d1a;
+}
 
 .login-card {
-    border-radius: 16px;
-    padding: 20px;
-    }
+  width: 100%;
+  max-width: 400px;
+  animation: form-reveal 0.9s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 
-mat-card-header {
-    margin-bottom: 24px;
-    padding: 0;
-    }
+@keyframes form-reveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-mat-card-title {
-    font-size: 2rem;
-    font-weight: 600;
-    line-height: 1.2;
-    }
+.form-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px;
+  font-weight: 300;
+  color: #f0fdfa;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
 
-mat-card-content {
-    padding: 0;
-    }
+.form-subtitle {
+  font-size: 14px;
+  font-weight: 300;
+  color: #4a8a8a;
+  margin: 0 0 36px;
+}
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    }
+/* ── Form ───────────────────────────────────────────────────── */
 
-mat-form-field {
-    width: 100%;
-    }
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-mat-card-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0;
-    margin-top: 8px;
-    }
+/* ── Material form field overrides for dark background ──────── */
+
+.login-form mat-form-field {
+  width: 100%;
+
+  /* Outline colour */
+  --mdc-outlined-text-field-outline-color:        rgba(0, 201, 177, 0.25);
+  --mdc-outlined-text-field-hover-outline-color:  rgba(0, 201, 177, 0.55);
+  --mdc-outlined-text-field-focus-outline-color:  #00c9b1;
+  /* Label */
+  --mdc-outlined-text-field-label-text-color:     #4a8a8a;
+  --mdc-outlined-text-field-focus-label-text-color: #00c9b1;
+  --mdc-outlined-text-field-hover-label-text-color: #94d8d0;
+  /* Input text */
+  --mdc-outlined-text-field-input-text-color:     #f0fdfa;
+  --mdc-outlined-text-field-caret-color:          #00c9b1;
+  /* Error */
+  --mdc-outlined-text-field-error-outline-color:  #ff7557;
+  --mdc-outlined-text-field-error-label-text-color: #ff7557;
+  --mdc-outlined-text-field-error-caret-color:    #ff7557;
+}
+
+/* Submit button */
+.btn-login {
+  margin-top: 12px;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #00c9b1, #0093a7);
+  color: #020d1a;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 20px rgba(0, 201, 177, 0.25);
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 32px rgba(0, 201, 177, 0.45);
+}
+
+.btn-login:active {
+  transform: translateY(0);
+}
+
+/* Sign-up link */
+.signup-link {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #4a8a8a;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.signup-link:hover {
+  color: #00c9b1;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+
+@media (max-width: 800px) {
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+  .login-brand {
+    display: none;
+  }
+  .login-form-panel {
+    padding: 40px 24px;
+    align-items: flex-start;
+    padding-top: 60px;
+  }
+  .login-card {
+    max-width: 100%;
+  }
+}
