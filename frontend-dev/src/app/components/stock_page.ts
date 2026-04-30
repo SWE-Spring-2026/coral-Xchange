@@ -11,13 +11,14 @@ import { order_select } from "./drop_down";
 import { Auth } from "../auth/auth";
 import { snack_bar } from "../snack_bar";
 import { HttpHeaders } from "@angular/common/http";
+import { DecimalPipe } from "@angular/common";
 
 @Component 
 ({
     selector: 'stocks',
     templateUrl: './stock_page.html',
     styleUrl: './stock_page.css',
-    imports: [ReactiveFormsModule, MatCardModule, AgCharts, MatButtonModule, MatIconModule, order_select],
+    imports: [ReactiveFormsModule, MatCardModule, AgCharts, MatButtonModule, MatIconModule, order_select, DecimalPipe],
 })
 
 export class stocks {

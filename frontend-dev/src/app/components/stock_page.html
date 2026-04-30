@@ -1,92 +1,197 @@
-<body>
-    <div class="main-layout">
+<div class="page-wrapper">
+
+  <!-- ── Page Header ─────────────────────────────────────── -->
+  <div class="page-header">
+    <p class="page-eyebrow"></p>
+    <h1 class="page-title">Coral <em>X</em>change</h1>
+  </div>
+
+  <!-- ── Two-column layout ───────────────────────────────── -->
+  <div class="main-layout">
+
+    <!-- ══ LEFT PANEL ══════════════════════════════════════ -->
     <div class="left-panel">
-        <h1>Stock Data</h1>
-        <div class="search-area">
-            <p>Stock Ticker: 
-                <input name="stock_search" type="text" class="search-bar" [formControl]="stock_name" required />
-                <!-- validation checking for form -->
-                @if(stock_name.invalid && (stock_name.dirty || stock_name.touched ))
-                {
-                    <div class="alert alert-danger">
-                        @if(stock_name.hasError('required'))
-                        {
-                            <div>Stock name required</div>
-                        }
-                        @if(stock_name.hasError('minlength'))
-                        {
-                            <div>Stock name must be at least 2 characters</div>
-                        }
-                    </div>
+
+      <!-- Search card -->
+      <div class="glass-card search-card">
+        <p class="search-label">Ticker Symbol</p>
+        <div class="search-row">
+          <input
+            name="stock_search"
+            type="text"
+            class="search-input"
+            placeholder="e.g. AAPL"
+            [formControl]="stock_name"
+            (keyup.enter)="on_submit()"
+          />
+          <button
+            class="search-btn"
+            (click)="on_submit()"
+            [disabled]="!stock_name.valid"
+          >
+            Search
+          </button>
+        </div>
+        @if (stock_name.invalid && (stock_name.dirty || stock_name.touched)) {
+          <div class="validation-msg">
+            @if (stock_name.hasError('required')) { Ticker symbol is required. }
+            @if (stock_name.hasError('minlength')) { Must be at least 2 characters. }
+          </div>
+        }
+      </div>
+
+      <!-- Stock identity + price card -->
+      <div class="glass-card">
+        @if (posts()?.ticker) {
+          <div class="stock-identity">
+            <div>
+              <div class="stock-ticker-badge">{{ posts()?.ticker }}</div>
+              <div class="stock-name-label">{{ posts()?.name }}</div>
+            </div>
+            <div class="stock-price-block">
+              <div class="stock-price-value">
+                @if (posts()?.price != null) {
+                  ${{ posts()?.price | number:'1.2-2' }}
+                } @else {
+                  <span class="stock-price-empty">—</span>
                 }
-                <button type="submit" class="submit-input" (click)="on_submit()" [disabled]="!stock_name.valid">Search stock</button>
-            </p>
-        </div>
-            <!--Stock cards for name and current price -->
-            <div class="card-area">
-                <mat-card class="stock-info-card">
-                    <mat-card-header class="stock-card-header"> Stock Name </mat-card-header>
-                    <mat-card-content class="stock-card-content">
-                        {{ posts()?.name }}
-                        {{ posts()?.ticker }}
-                    </mat-card-content>
-                </mat-card>
-                    <mat-card class="stock-info-card">
-                    <mat-card-header class="stock-card-header"> Stock Price Current </mat-card-header>
-                    <mat-card-content class="stock-card-content">
-                        $ 
-                        @if(posts()?.price != null) 
-                        {
-                            {{ posts()?.price }}
-                        }
-                        @else 
-                        {
-                            0.00
-                        }
-                    </mat-card-content>
-                </mat-card>
-            </div>
-            <!--Buttons for future use when buying and selling -->
-            <div class="button-area">
-                <div class="add-button">
-                    <button matFab extended (click)="increase_count()">
-                        <mat-icon>add</mat-icon>
-                        1
-                    </button>
+              </div>
+              @if (posts()?.day_change != null) {
+                <div class="stock-change"
+                  [class.change-up]="(posts()?.day_change ?? 0) > 0"
+                  [class.change-down]="(posts()?.day_change ?? 0) < 0"
+                  [class.change-flat]="(posts()?.day_change ?? 0) === 0"
+                >
+                  {{ (posts()?.day_change ?? 0) > 0 ? '▲' : (posts()?.day_change ?? 0) < 0 ? '▼' : '—' }}
+                  {{ posts()?.day_change | number:'1.2-2' }}%
                 </div>
-                <input name="buy_amount" type="number" class="buy_bar" [formControl]="stock_amount" />
-                <div class="subtract-button">
-                    <button matFab extended (click)="decrease_count()">
-                        <mat-icon>remove</mat-icon>
-                        1
-                    </button>
-                </div>
+              }
             </div>
-            <order_select (selectionChange)="orderChange($event)" class="drop-down"></order_select>
-            <div class="place-order">
-                <button matFab extended (click)="makeTrade(order_type().valueOf())">
-                    <mat-icon>shopping_cart</mat-icon>
-                    Place
-                    @if(order_type().valueOf() == 'buy-0')
-                    {
-                        Buy
-                    }
-                    @else if(order_type().valueOf() == 'sell-1')
-                    {
-                        Sell
-                    }
-                    Order
-                </button>
+          </div>
+
+          <!-- Stat grid -->
+          <div class="stats-grid">
+            <div class="stat-cell">
+              <div class="stat-cell-label">Day High</div>
+              <div class="stat-cell-value">
+                @if (posts()?.day_high) { ${{ posts()?.day_high | number:'1.2-2' }} } @else { — }
+              </div>
             </div>
+            <div class="stat-cell">
+              <div class="stat-cell-label">Day Low</div>
+              <div class="stat-cell-value">
+                @if (posts()?.day_low) { ${{ posts()?.day_low | number:'1.2-2' }} } @else { — }
+              </div>
+            </div>
+<div class="stat-cell">
+  <div class="stat-cell-label">Open</div>
+  <div class="stat-cell-value">
+    @if (posts()?.day_open) { ${{ posts()?.day_open | number:'1.2-2' }} } @else { — }
+  </div>
+</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-cell-label">Prev. Close</div>
+              <div class="stat-cell-value">
+                @if (posts()?.previous_close_price) { ${{ posts()?.previous_close_price | number:'1.2-2' }} } @else { — }
+              </div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-cell-label">52W High</div>
+              <div class="stat-cell-value">
+                @if (posts()?.fifty_two_week_high) { ${{ posts()?.fifty_two_week_high | number:'1.2-2' }} } @else { — }
+              </div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-cell-label">52W Low</div>
+              <div class="stat-cell-value">
+                @if (posts()?.fifty_two_week_low) { ${{ posts()?.fifty_two_week_low | number:'1.2-2' }} } @else { — }
+              </div>
+            </div>
+          </div>
+
+        } @else {
+          <!-- Empty placeholder -->
+          <div class="placeholder-identity">
+            <div class="placeholder-ticker">— · —</div>
+            <div class="placeholder-sub">Search a ticker to load data</div>
+          </div>
+        }
+      </div>
+
+      <!-- Trade card -->
+      <div class="glass-card">
+        <p class="trade-card-title">Place Order</p>
+
+        <!-- Quantity control -->
+        <div class="qty-row">
+          <span class="qty-label">Quantity</span>
+          <div class="qty-controls">
+            <button class="qty-btn" type="button" (click)="decrease_count()">
+              <mat-icon style="font-size:16px;width:16px;height:16px;line-height:16px;">remove</mat-icon>
+            </button>
+            <input
+              name="buy_amount"
+              type="number"
+              class="qty-input"
+              [formControl]="stock_amount"
+            />
+            <button class="qty-btn" type="button" (click)="increase_count()">
+              <mat-icon style="font-size:16px;width:16px;height:16px;line-height:16px;">add</mat-icon>
+            </button>
+          </div>
         </div>
-    <div class="right-panel"> 
+
+        <!-- Order type dropdown -->
+        <div class="order-select-wrapper">
+          <order_select (selectionChange)="orderChange($event)"></order_select>
         </div>
-        <!--AG chart -->
-        <div class="chart">
-            @if(show_chart)
-            {
-                <ag-charts [options]="stock_chart().options"></ag-charts>
-            }
+
+        <!-- Place order button -->
+        <button
+          class="place-order-btn"
+          [class.buy]="order_type().valueOf() === 'buy-0'"
+          [class.sell]="order_type().valueOf() === 'sell-1'"
+          [class.stop]="order_type().valueOf() === 'stop-2'"
+          [class.default]="order_type().valueOf() === ''"
+          type="button"
+          (click)="makeTrade(order_type().valueOf())"
+        >
+          <mat-icon>shopping_cart</mat-icon>
+          @if (order_type().valueOf() === 'buy-0')  { Place Buy Order  }
+          @else if (order_type().valueOf() === 'sell-1') { Place Sell Order }
+          @else if (order_type().valueOf() === 'stop-2') { Place Stop Order }
+          @else { Select an Order Type }
+        </button>
+      </div>
+
+    </div>
+    <!-- ══ END LEFT PANEL ══════════════════════════════════ -->
+
+    <!-- ══ RIGHT PANEL — Chart ═════════════════════════════ -->
+    <div class="right-panel">
+      <div class="glass-card chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Intraday Chart · Hourly</span>
+          @if (posts()?.ticker) {
+            <span class="chart-tag">{{ posts()?.ticker }} · {{ posts()?.exchange_short }}</span>
+          }
         </div>
-    </div>   
-</body>
+
+        <div class="chart-area">
+          @if (show_chart) {
+            <ag-charts [options]="stock_chart().options"></ag-charts>
+          } @else {
+            <div class="empty-state">
+              <mat-icon class="empty-icon">candlestick_chart</mat-icon>
+              <span class="empty-text">No chart data yet</span>
+              <span class="empty-hint">Search a ticker above to load the intraday chart</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <!-- ══ END RIGHT PANEL ══════════════════════════════════ -->
+
+  </div>
+</div>

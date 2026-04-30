@@ -1,32 +1,50 @@
 <div class="login-page">
-    <mat-card class="login-card" appearance="outlined">
-    <mat-card-header>
-        <mat-card-title>Log In</mat-card-title>
-    </mat-card-header>
 
-    <mat-card-content>
-        <form [formGroup]="loginForm" (ngSubmit)="login()">
+  <!-- Left branding panel -->
+  <aside class="login-brand">
+    <div class="brand-content">
+      <p class="brand-eyebrow">Paper Trading Platform</p>
+      <h1 class="brand-headline">Welcome<br>back to the<br><em>depths.</em></h1>
+      <p class="brand-sub">
+        Your portfolio is waiting. Log in to pick up where you left off.
+      </p>
+    </div>
+
+    <!-- Decorative caustic rings -->
+    <div class="caustics" aria-hidden="true">
+      <div class="caustic c1"></div>
+      <div class="caustic c2"></div>
+      <div class="caustic c3"></div>
+    </div>
+  </aside>
+
+  <!-- Right form panel -->
+  <div class="login-form-panel">
+    <div class="login-card">
+      <h2 class="form-title">Log In</h2>
+      <p class="form-subtitle">Enter your credentials to continue.</p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="login()" class="login-form">
         <mat-form-field appearance="outline">
-            <mat-label>Username</mat-label>
-            <input matInput type="text" formControlName="username" />
-            @if (username.hasError('required') && username.touched) {
+          <mat-label>Username</mat-label>
+          <input matInput type="text" formControlName="username" autocomplete="username" />
+          @if (username.hasError('required') && username.touched) {
             <mat-error>Username is required.</mat-error>
-            }
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-            <mat-label>Password</mat-label>
-            <input matInput type="password" formControlName="password" />
-            @if (password.hasError('required') && password.touched) {
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+          @if (password.hasError('required') && password.touched) {
             <mat-error>Password is required.</mat-error>
-            }
+          }
         </mat-form-field>
 
-        <mat-card-actions>
-            <button mat-raised-button type="submit">Login</button>
-            <a mat-button routerLink="/signup">Sign Up</a>
-        </mat-card-actions>
-        </form>
-    </mat-card-content>
-    </mat-card>
+        <button class="btn-login" type="submit">Log In</button>
+        <a routerLink="/signup" class="signup-link">Don't have an account? Sign up →</a>
+      </form>
+    </div>
+  </div>
+
 </div>
