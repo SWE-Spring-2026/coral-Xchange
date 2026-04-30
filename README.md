@@ -13,6 +13,8 @@ Ensure angular is installed with `ng --version`, if not installed use `npm insta
 
 Once installed run `ng serve`
 
+Test frontend with `ng test`
+
 
 ## Running back-end:
 
