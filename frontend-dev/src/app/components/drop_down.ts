@@ -23,7 +23,6 @@ export class order_select
   orders: order[] = [
     {value: 'buy-0', view_value: 'Buy Order'},
     {value: 'sell-1', view_value: 'Sell Order'},
-    {value: 'stop-2', view_value: 'Stop Order'},
   ];
 
     onChange(value: string) 
