@@ -1,39 +1,135 @@
-<div class="page">
-    @if (auth.currentUser(); as user) {
-    <mat-card class="profile-header" appearance="outlined">
-        <mat-card-header>
-        <div mat-card-avatar class="profile-avatar">
-            <mat-icon>account_circle</mat-icon>
+
+
+<div class="profile-page">
+
+  @if (auth.currentUser(); as user) {
+
+    <!-- ── Hero header ──────────────────────────────────────── -->
+    <div class="profile-hero">
+      <div class="caustics" aria-hidden="true">
+        <div class="caustic c1"></div>
+        <div class="caustic c2"></div>
+        <div class="caustic c3"></div>
+      </div>
+
+      <div class="hero-inner">
+        <div class="avatar-ring">
+          <mat-icon class="avatar-icon">account_circle</mat-icon>
         </div>
+        <div class="hero-identity">
+          <h1 class="hero-name">{{ user.name }}</h1>
+          <p class="hero-username">&#64;{{ user.username }}</p>
+        </div>
+      </div>
+    </div>
 
-        <mat-card-title>{{ user.name }}</mat-card-title>
-        <mat-card-subtitle>@{{ user.username }}</mat-card-subtitle>
-        </mat-card-header>
+    <!-- ── Stats row ────────────────────────────────────────── -->
+    <div class="stats-row">
+      <div class="stat-pill">
+        <span class="stat-pill-label">Cash Balance</span>
+        <span class="stat-pill-value aqua">${{ user.balance | number:'1.2-2' }}</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-pill">
+        <span class="stat-pill-label">Member Since</span>
+        <span class="stat-pill-value">{{ user.memberSince | date:'MMMM d, y' }}</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-pill">
+        <span class="stat-pill-label">Account Type</span>
+        <span class="stat-pill-value">Paper Trader</span>
+      </div>
+    </div>
 
-        <mat-card-content>
-        <p>Email: {{ user.email }}</p>
-        <p>Member since: {{ user.memberSince }}</p>
-        <p>Cash Balance: ${{ user.balance }}</p>
-        </mat-card-content>
+    <!-- ── Detail cards ─────────────────────────────────────── -->
+    <div class="cards-grid">
 
-        <mat-card-actions>
-        <button mat-button disabled>Edit Profile</button>
-        <button mat-button (click)="logout()">Logout</button>
-        </mat-card-actions>
-    </mat-card>
-    } @else {
-    <mat-card appearance="outlined">
-        <mat-card-header>
-        <mat-card-title>You are not logged in</mat-card-title>
-        </mat-card-header>
+      <!-- Account info -->
+      <div class="glass-card">
+        <p class="card-label">Account Details</p>
+        <div class="detail-rows">
+          <div class="detail-row">
+            <span class="detail-key">
+              <mat-icon class="detail-icon">person</mat-icon>Full Name
+            </span>
+            <span class="detail-val">{{ user.name }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">
+              <mat-icon class="detail-icon">alternate_email</mat-icon>Username
+            </span>
+            <span class="detail-val">&#64;{{ user.username }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">
+              <mat-icon class="detail-icon">mail_outline</mat-icon>Email
+            </span>
+            <span class="detail-val">{{ user.email }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-key">
+              <mat-icon class="detail-icon">calendar_today</mat-icon>Joined
+            </span>
+            <span class="detail-val">{{ user.memberSince | date:'MMMM d, y' }}</span>
+          </div>
+        </div>
+      </div>
 
-        <mat-card-content>
-        <p>Please log in to view your profile.</p>
-        </mat-card-content>
+      <!-- Portfolio snapshot -->
+      <div class="glass-card">
+        <p class="card-label">Portfolio Snapshot</p>
+        <div class="balance-display">
+          <span class="balance-figure">${{ user.balance | number:'1.2-2' }}</span>
+          <span class="balance-sub">Available cash balance</span>
+        </div>
+        <div class="action-group">
+          <a routerLink="/stocks" class="btn-primary">
+            <mat-icon>trending_up</mat-icon>
+            Trade Stocks
+          </a>
+          <a routerLink="/portfolio" class="btn-ghost">
+            <mat-icon>pie_chart</mat-icon>
+            View Portfolio
+          </a>
+        </div>
+      </div>
 
-        <mat-card-actions>
-        <a mat-button routerLink="/login">Go to Log In</a>
-        </mat-card-actions>
-    </mat-card>
-    }
+    </div>
+
+    <!-- ── Danger zone ───────────────────────────────────────── -->
+    <div class="glass-card danger-card">
+      <p class="card-label">Session</p>
+      <div class="danger-row">
+        <div>
+          <p class="danger-title">Log out of your account</p>
+          <p class="danger-sub">You will need to log back in to trade or view your portfolio.</p>
+        </div>
+        <button class="btn-logout" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Log Out
+        </button>
+      </div>
+    </div>
+
+  } @else {
+
+    <!-- ── Not logged in state ───────────────────────────────── -->
+    <div class="empty-state-card">
+      <div class="caustics" aria-hidden="true">
+        <div class="caustic c1"></div>
+        <div class="caustic c2"></div>
+      </div>
+      <div class="empty-inner">
+        <mat-icon class="empty-icon">lock</mat-icon>
+        <h2 class="empty-title">You're not logged in</h2>
+        <p class="empty-sub">Log in to view your profile, balance, and trading history.</p>
+        <a routerLink="/login" class="btn-primary">
+          <mat-icon>login</mat-icon>
+          Go to Log In
+        </a>
+      </div>
+    </div>
+
+  }
+
 </div>

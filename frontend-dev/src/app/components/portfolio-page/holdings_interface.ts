@@ -2,7 +2,8 @@ interface holding
 {
     ticker: string,
     quantity: number,
-    price: number,
+    avgCostBasis: number,
+    positionValue: number,
 }
 
 export interface Holdings
