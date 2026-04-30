@@ -83,11 +83,12 @@
                 @if (posts()?.day_low) { ${{ posts()?.day_low | number:'1.2-2' }} } @else { — }
               </div>
             </div>
-            <div class="stat-cell">
-              <div class="stat-cell-label">Open</div>
-              <div class="stat-cell-value">
-                @if (posts()?.day_open) { ${{ posts()?.day_open | number:'1.2-2' }} } @else { — }
-              </div>
+<div class="stat-cell">
+  <div class="stat-cell-label">Open</div>
+  <div class="stat-cell-value">
+    @if (posts()?.day_open) { ${{ posts()?.day_open | number:'1.2-2' }} } @else { — }
+  </div>
+</div>
             </div>
             <div class="stat-cell">
               <div class="stat-cell-label">Prev. Close</div>

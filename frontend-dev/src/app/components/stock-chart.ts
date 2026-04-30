@@ -10,6 +10,7 @@ import {
   OrdinalTimeAxisModule,
   CategoryAxisModule,
   ZoomModule,
+  RangesModule,
 } from "ag-charts-enterprise";
 import clone from "clone";
 
@@ -23,6 +24,7 @@ ModuleRegistry.registerModules([
   ContextMenuModule,
   CategoryAxisModule,
   ZoomModule,
+  RangesModule,
 ]);
 
 export class stock_chart 
@@ -44,6 +46,9 @@ export class stock_chart
         },
         background: {
             visible: false,
+        },
+        ranges: {
+            enabled:true,
         },
         data: [],
         series: [
@@ -71,7 +76,6 @@ export class stock_chart
     setData(data: any): void
     {
         data = this.formatIntra(data);
-        console.log(data);
         const options = clone(this.options);
         options.data = data;
         this.options = options;
@@ -82,15 +86,7 @@ export class stock_chart
         // change the date format for each data point on chart
         for(let i of data)
         {
-            const date = new Date(i.date);
-            const new_date = date.toLocaleString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-            });
-            i.date = new_date;
+            i.date = new Date(i.date);
         }
         return data;    
     }

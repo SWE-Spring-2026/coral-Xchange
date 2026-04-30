@@ -10,7 +10,7 @@ import { Auth } from '../auth';
 
 @Component({
   selector: 'app-login-page',
-  imports: [RouterLink, MatButtonModule, MatCardModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatFormFieldModule, MatError],
+  imports: [RouterLink, MatButtonModule, MatCardModule, ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatFormFieldModule],
   templateUrl: './login-page.html',
   styleUrl: './login-page.css',
 })
