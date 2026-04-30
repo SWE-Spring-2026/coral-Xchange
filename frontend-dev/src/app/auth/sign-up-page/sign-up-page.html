@@ -1,66 +1,145 @@
 <div class="signup-page">
-    <mat-card class="signup-card" appearance="outlined">
-    <mat-card-header>
-        <mat-card-title>Sign Up</mat-card-title>
-        <mat-card-subtitle>Join the Coral-XChange school now!</mat-card-subtitle>
-    </mat-card-header>
+    <section class="signup-layout">
+        <aside class="signup-info-panel">
+            <p class="website-name">Coral-Xchange</p>
+            <h1>Practice trading before risking real money.</h1>
 
-    <mat-card-content>
-        <p class="helper-text">
-        Create your account, then log in with your username and password.
-        </p>
+            <p class="info-description">Learn how to trade stocks by building your own portfolio, testing your trading strategies, and tracking your progress in a simulated environment.</p>
 
-        <form class="signup-form" [formGroup]="signUpForm" (ngSubmit)="submit()">
-        <mat-form-field appearance="outline">
-            <mat-label>Name</mat-label>
-                <input matInput type="text" formControlName="name" autocomplete="name" />
-                @if (name.hasError('required') && name.touched) {
-                <mat-error>Name is required.</mat-error>
+            <div class="info-steps">
+                <div class="info-step">
+                    <span class="step-number">1</span>
+                    <div>
+                        <h3>Create your account</h3>
+                        <p>Sign up to get started, no credit card or brokerage needed.</p>
+                    </div>
+                </div>
+
+                <div class="info-step">
+                    <span class="step-number">2</span>
+                    <div>
+                        <h3>Get virtual cash</h3>
+                        <p>Start with a paper-money balance to build your portfolio.</p>
+                    </div>
+                </div>
+
+                <div class="info-step">
+                    <span class="step-number">3</span>
+                    <div>
+                        <h3>Trade and learn</h3>
+                        <p>Buy and sell stocks with zero risk while you learn the market.</p>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <mat-card class="signup-card" appearance="outlined">
+        <mat-card-header>
+            <mat-card-title>Create your account</mat-card-title>
+            <mat-card-subtitle>Dive into trading with zero risk.</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <p class="helper-text">Required fields are marked with an asterisk (*). You will use your username and password to log in.</p>
+
+            <form class="signup-form" [formGroup]="signUpForm" (ngSubmit)="submit()">
+            <mat-form-field appearance="outline">
+                <mat-label>Name</mat-label>
+                    <input matInput type="text" formControlName="name" autocomplete="name" />
+                    @if (name.hasError('required') && name.touched) {
+                    <mat-error>Name is required.</mat-error>
+                    }
+                    @if (name.hasError('minlength') && name.touched) {
+                    <mat-error>Name must be at least 2 characters.</mat-error>
+                    }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Username</mat-label>
+                <input matInput type="text" formControlName="username" autocomplete="username" />
+                @if (username.hasError('required') && username.touched) {
+                <mat-error>Username is required.</mat-error>
                 }
-                @if (name.hasError('minlength') && name.touched) {
-                <mat-error>Name must be at least 2 characters.</mat-error>
+                @if (username.hasError('minlength') && username.touched) {
+                <mat-error>Username must be at least 3 characters.</mat-error>
                 }
-        </mat-form-field>
+            </mat-form-field>
 
+            <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" formControlName="email" autocomplete="email" />
+                @if (email.hasError('required') && email.touched) {
+                <mat-error>Email is required.</mat-error>
+                }
+                @if (email.hasError('email') && email.touched) {
+                <mat-error>Enter a valid email address.</mat-error>
+                }
+            </mat-form-field>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Username</mat-label>
-            <input matInput type="text" formControlName="username" autocomplete="username" />
-            @if (username.hasError('required') && username.touched) {
-            <mat-error>Username is required.</mat-error>
-            }
-            @if (username.hasError('minlength') && username.touched) {
-            <mat-error>Username must be at least 3 characters.</mat-error>
-            }
-        </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Password</mat-label>
+                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="new-password" />
+                <button mat-icon-button matSuffix type = "button" class = "visibility-toggle" (click) = "hidePassword = !hidePassword" [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'">
+                    <!-- Added functionality to toggle the password visibility -->
+                    <mat-icon> {{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon> 
+                </button>
+                @if (password.hasError('required') && password.touched) {
+                <mat-error>Password is required.</mat-error>
+                }
+                @if (password.hasError('minlength') && password.touched) {
+                <mat-error>Password must be at least 8 characters.</mat-error>
+                }
+            </mat-form-field>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" formControlName="email" autocomplete="email" />
-            @if (email.hasError('required') && email.touched) {
-            <mat-error>Email is required.</mat-error>
-            }
-            @if (email.hasError('email') && email.touched) {
-            <mat-error>Enter a valid email address.</mat-error>
-            }
-        </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Confirm Password</mat-label>
+                <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" autocomplete="new-password" />
+                <button mat-icon-button matSuffix type = "button" class = "visibility-toggle" (click) = "hideConfirmPassword = !hideConfirmPassword" [attr.aria-label]="hideConfirmPassword ? 'Show password' : 'Hide password'">
+                    <!-- Added functionality to toggle the password visibility -->
+                    <mat-icon> {{ hideConfirmPassword ? 'visibility' : 'visibility_off' }}</mat-icon> 
+                </button>
+                @if (confirmPassword.hasError('required') && confirmPassword.touched) {
+                <mat-error>Please confirm your password.</mat-error>
+                }
+            </mat-form-field>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Password</mat-label>
-            <input matInput type="password" formControlName="password" autocomplete="new-password" />
-            @if (password.hasError('required') && password.touched) {
-            <mat-error>Password is required.</mat-error>
+            @if (passwordsDoNotMatch) {
+                <p class="field-error">Passwords do not match.</p>
             }
-            @if (password.hasError('minlength') && password.touched) {
-            <mat-error>Password must be at least 8 characters.</mat-error>
-            }
-        </mat-form-field>
 
-        <div class="form-actions">
-            <button mat-raised-button type="submit">Create Account</button>
-            <a mat-button routerLink="/login">Go to Log In</a>
-        </div>
-        </form>
-    </mat-card-content>
-    </mat-card>
+            <div class="optional-section">
+                <p class="optional-title">Optional profile details</p>
+
+                <mat-form-field appearance="outline">
+                <mat-label>Trading Experience</mat-label>
+                <mat-select formControlName="tradingExperience">
+                    <mat-option value="">Prefer not to say</mat-option>
+
+                    @for (option of tradingExperienceOptions; track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                    }
+                </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                <mat-label>Interested Sectors</mat-label>
+                <mat-select formControlName="interestedSectors" multiple>
+                    @for (sector of sectorOptions; track sector) {
+                    <mat-option [value]="sector">{{ sector }}</mat-option>
+                    }
+                </mat-select>
+                </mat-form-field>
+            </div>
+
+            <p class="paper-trading-note"> Coral-Xchange is a paper-trading platform. Your account uses virtual cash only, and no real trades are placed.</p>
+
+            <div class="form-actions">
+                <button mat-raised-button class="create-account-button" type="submit">Create Account</button>
+                <a mat-button routerLink="/login" class="login-link">Already have an account? Log in</a>
+            </div>
+            </form>
+        </mat-card-content>
+        </mat-card>
+    </section>
 </div>
