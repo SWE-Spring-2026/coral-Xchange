@@ -15,7 +15,8 @@ interface IRow
 {
   ticker: string,
   quantity: number,
-  price: number
+  total_value: number,
+  average_purchase_price: number
 }
 
 @Component({
@@ -39,7 +40,8 @@ export class PortfolioPage implements OnInit{
   col_defs: ColDef<IRow>[] = [
     {field: "ticker"},
     {field: "quantity"},
-    {field: "price"}
+    {field: "average_purchase_price"},
+    {field: "total_value"}
   ];
 
   // row data, to be added to on page load
@@ -78,7 +80,8 @@ export class PortfolioPage implements OnInit{
         {
           ticker: holding.ticker,
           quantity: holding.quantity,
-          price: holding.price,
+          total_value: holding.positionValue,
+          average_purchase_price: holding.avgCostBasis,
         }
       );
     }

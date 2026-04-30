@@ -77,7 +77,7 @@ export class portfolio_chart {
   loadChartData(): void
   {
     const data = this.holdings().holdings.map(holding => ({
-        value: Number(holding.quantity) * Number(holding.price),
+        value: holding.positionValue,
         ticker: holding.ticker,
     }));
 
