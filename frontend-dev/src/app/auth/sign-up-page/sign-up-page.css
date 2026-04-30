@@ -355,3 +355,7 @@
     max-width: 100%;
   }
 }
+
+.signup-form mat-form-field {
+  --mat-sys-on-surface: #f0fdfa;
+}

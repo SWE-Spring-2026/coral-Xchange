@@ -3,9 +3,10 @@ import { Holdings } from './holdings_interface';
 import { Api } from '../../api';
 import { Auth } from '../../auth/auth';
 import { AgGridAngular } from "ag-grid-angular";
-import type { ColDef } from "ag-grid-community";
+import type { ColDef, SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy } from "ag-grid-community";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { portfolio_chart } from './portfolio-chart';
+import { DecimalPipe } from "@angular/common";
 
 ModuleRegistry.registerModules([ AllCommunityModule]);
 
@@ -21,7 +22,7 @@ interface IRow
 
 @Component({
   selector: 'app-portfolio-page',
-  imports: [AgGridAngular, portfolio_chart],
+  imports: [AgGridAngular, portfolio_chart, DecimalPipe],
   templateUrl: './portfolio-page.html',
   styleUrl: './portfolio-page.css',
 })
@@ -35,6 +36,10 @@ export class PortfolioPage implements OnInit{
   private api = inject(Api);
   private auth = inject(Auth);
   public show_grid = false;
+  public current_user = this.auth.currentUser();
+  public auto_size: SizeColumnsToContentStrategy = {
+    type: 'fitCellContents'
+  };
 
   // Column definitions for angular grid
   col_defs: ColDef<IRow>[] = [

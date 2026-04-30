@@ -158,7 +158,7 @@
 
 .login-form mat-form-field {
   width: 100%;
-
+  color: white !important;
   /* Outline colour */
   --mdc-outlined-text-field-outline-color:        rgba(0, 201, 177, 0.25);
   --mdc-outlined-text-field-hover-outline-color:  rgba(0, 201, 177, 0.55);
@@ -168,7 +168,7 @@
   --mdc-outlined-text-field-focus-label-text-color: #00c9b1;
   --mdc-outlined-text-field-hover-label-text-color: #94d8d0;
   /* Input text */
-  --mdc-outlined-text-field-input-text-color:     #f0fdfa;
+  --mdc-outlined-text-field-input-text-color: white;
   --mdc-outlined-text-field-caret-color:          #00c9b1;
   /* Error */
   --mdc-outlined-text-field-error-outline-color:  #ff7557;
@@ -236,4 +236,8 @@
   .login-card {
     max-width: 100%;
   }
+}
+
+.login-form mat-form-field {
+  --mat-sys-on-surface: #f0fdfa;
 }

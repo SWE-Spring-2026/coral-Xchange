@@ -1,22 +1,37 @@
-@if (holdings().totalValue != -1) {
+<!-- portfolio-page.html -->
+@if (holdings().totalValue !== -1) {
+  <div class="page-wrapper">
+    <header class="page-header">
+      <p class="page-eyebrow">Overview</p>
+      <h1 class="page-title"> {{current_user?.name}} <em>Portfolio</em></h1>
+      <span class="portfolio-value">${{ holdings().totalValue | number:'1.2-2' }}</span>
+    </header>
 
-  @if(show_grid)
-  {
-    <div class="portfolio-layout">
-      <div class="ag-grid-wrapper">
-        <ag-grid-angular 
-          class="grid"
-          [rowData]="row_data"
-          [columnDefs]="col_defs">
-        </ag-grid-angular>
+    @if (show_grid) {
+      <div class="main-layout">
+
+        <div class="glass-card grid-card">
+          <p class="panel-label">Holdings</p>
+          <ag-grid-angular
+            class="grid"
+            [rowData]="row_data"
+            [columnDefs]="col_defs"
+            [autoSizeStrategy]="auto_size"
+            >
+          </ag-grid-angular>
+        </div>
+
+        <div class="glass-card chart-card">
+          <portfolio-chart></portfolio-chart>
+        </div>
+
       </div>
-
-      <div class="chart-wrapper">
-        <portfolio-chart></portfolio-chart>
-      </div>
-    </div>
-  }
-
-} @else {
-  <p>Loading portfolio...</p>
+    }
+  </div>
+} 
+@else if(current_user?.name != undefined || current_user?.name != null) 
+{
+  <div class="loading-state">
+    <span class="loading-text">Loading portfolio…</span>
+  </div>
 }

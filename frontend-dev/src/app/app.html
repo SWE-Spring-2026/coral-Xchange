@@ -5,7 +5,10 @@
       <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
       <a mat-button routerLink="/stocks" routerLinkActive="active">Stocks</a>
       <a mat-button routerLink="/discovery" routerLinkActive="active">Discover</a>
-      <a mat-button routerLink="/portfolio" routerLinkActive="active">Portfolio</a>
+      @if(current_user()?.name != null && current_user()?.name != undefined)
+      {
+        <a mat-button routerLink="/portfolio" routerLinkActive="active">Portfolio</a>
+      }
   </div>
   <span class="spacer"></span>
   <div class="nav-right">

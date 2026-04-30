@@ -119,12 +119,12 @@ export class stocks {
                     }
                 ).subscribe({
                     next: (res) => {
-                        this.snack.openSnackBar(`Succesful buy order, Quant:${this.stock_amount.value}`, "Close");
+                        this.snack.openSnackBar(`Succesful buy order, Quantity:${this.stock_amount.value}`, "Close");
                         // after buy order update balance
                         this.auth.updateBalance();
                     },
                     error: (err) => {
-                        console.log(err);
+                        this.snack.openSnackBar(err.error.error, "Close");
                     }
                 });
             }
@@ -144,17 +144,13 @@ export class stocks {
                     }
                 ).subscribe({
                     next: (res) => {
-                        this.snack.openSnackBar(`Succesful sell order, Quant:${this.stock_amount.value}`, "Close");
+                        this.snack.openSnackBar(`Succesful sell order, Quantity:${this.stock_amount.value}`, "Close");
                         this.auth.updateBalance();
                     },
                     error: (err) => {
-                        console.log(err);
+                        this.snack.openSnackBar(err.error.error, "Close");
                     }
                 });
-            }
-            else if(type == 'stop-2')
-            {
-                // TODO when backend has stop order 
             }
             else
             {

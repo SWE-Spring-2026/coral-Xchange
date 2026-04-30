@@ -1,43 +1,208 @@
-/* Full page height support (important for AG Grid) */
-
-html, body {
-  height: 100%;
-  margin: 0;
-}
+/* portfolio-page.css */
 
 :host {
   display: block;
-  height: 100%;
+  min-height: calc(100vh - 60px);
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 0%,  rgba(0,201,177,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 95% 90%, rgba(0,100,180,0.15) 0%, transparent 50%),
+    linear-gradient(170deg, #021624 0%, #020d1a 45%, #031d36 100%);
+  font-family: 'Outfit', sans-serif;
+  color: #f0fdfa;
 }
 
-/* Main layout container */
-.portfolio-layout {
+/* ── Page wrapper ──────────────────────────────────────────── */
+
+.page-wrapper {
   display: flex;
-  gap: 16px;
-  width: 100%;
-  height: 70vh; /* adjust as needed */
-  padding: 8px;
+  flex-direction: column;
+  height: calc(100vh - 60px);
+  padding: 24px 28px;
+  gap: 20px;
   box-sizing: border-box;
 }
 
-/* AG Grid section */
-.ag-grid-wrapper {
-  flex: 2;              /* takes more space than chart */
-  min-width: 0;         /* prevents overflow issues */
-  height: 100%;
-}
+/* ── Page header ───────────────────────────────────────────── */
 
-/* Chart section */
-.chart-wrapper {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
+.page-header {
   display: flex;
-  align-items: stretch;
+  align-items: baseline;
+  gap: 16px;
+  flex-shrink: 0;
 }
 
-/* IMPORTANT: AG Grid must fill wrapper */
-ag-grid-angular {
+.page-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #00c9b1;
+  margin: 0;
+}
+
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 300;
+  color: #f0fdfa;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.page-title em {
+  font-style: italic;
+  color: #00c9b1;
+}
+
+.portfolio-value {
+  margin-left: auto;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: #00c9b1;
+  letter-spacing: -0.01em;
+}
+
+/* ── Main layout ───────────────────────────────────────────── */
+
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Glass card base ───────────────────────────────────────── */
+
+.glass-card {
+  background: rgba(3, 29, 54, 0.72);
+  border: 1px solid rgba(0, 201, 177, 0.15);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  min-height: 0;
+}
+
+.glass-card:hover {
+  border-color: rgba(0, 201, 177, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 201, 177, 0.08);
+}
+
+/* ── Grid card ─────────────────────────────────────────────── */
+
+.grid-card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.panel-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #4a8a8a;
+  margin: 0 0 14px;
+  flex-shrink: 0;
+}
+
+.grid {
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+
+  /* AG Grid CSS variable overrides */
+  --ag-background-color: transparent;
+  --ag-foreground-color: #f0fdfa;
+  --ag-border-color: rgba(0, 201, 177, 0.1);
+  --ag-secondary-border-color: rgba(0, 201, 177, 0.07);
+  --ag-row-hover-color: rgba(0, 201, 177, 0.06);
+  --ag-selected-row-background-color: rgba(0, 201, 177, 0.1);
+  --ag-odd-row-background-color: rgba(2, 13, 26, 0.3);
+  --ag-even-row-background-color: transparent;
+  --ag-header-background-color: rgba(2, 13, 26, 0.55);
+  --ag-header-foreground-color: #4a8a8a;
+  --ag-header-column-separator-color: rgba(0, 201, 177, 0.1);
+  --ag-font-family: 'Outfit', sans-serif;
+  --ag-font-size: 13px;
+  --ag-row-height: 44px;
+  --ag-header-height: 42px;
+}
+
+.grid ::ng-deep .ag-header-cell-text {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #4a8a8a;
+}
+
+.grid ::ng-deep .ag-cell {
+  font-size: 13px;
+  font-weight: 500;
+  color: #94d8d0;
+  display: flex;
+  align-items: center;
+}
+
+.grid ::ng-deep .ag-body-vertical-scroll-viewport::-webkit-scrollbar { width: 4px; }
+.grid ::ng-deep .ag-body-vertical-scroll-viewport::-webkit-scrollbar-thumb {
+  background: rgba(0, 201, 177, 0.25);
+  border-radius: 4px;
+}
+
+/* ── Chart card ────────────────────────────────────────────── */
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+portfolio-chart {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Loading state ─────────────────────────────────────────── */
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 60px);
+}
+
+.loading-text {
+  font-size: 14px;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: #4a8a8a;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 460px;
+  }
+
+  .page-wrapper {
+    height: auto;
+    min-height: calc(100vh - 60px);
+  }
+}
+
+@media (max-width: 600px) {
+  .page-wrapper { padding: 16px; }
+  .page-title { font-size: 24px; }
+  .portfolio-value { font-size: 20px; }
 }
