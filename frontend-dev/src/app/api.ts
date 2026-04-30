@@ -27,7 +27,7 @@ export class Api {
   // still using direct call to api, will update once backend has intraday endpoint
   getIntraday(symbol: string): Observable<any> 
   {
-    return this.http.get(`${this.url}/data/intraday?symbols=${symbol}&api_token=${this.key}&interval=hour&date_from=2026-03-09&sort=asc`)
+    return this.http.get(`${this.url}/data/intraday?symbols=${symbol}&api_token=${this.key}&interval=hour`)
   }
 
   // get news based on type of news passed in
