@@ -1,6 +1,5 @@
 import { Api } from "../api";
 import { Component, inject, signal} from "@angular/core";
-import { MatCardModule } from "@angular/material/card";
 import { FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
 import { Stock } from "./stock_interface";
 import { stock_chart } from "./stock-chart";
@@ -18,7 +17,7 @@ import { DecimalPipe } from "@angular/common";
     selector: 'stocks',
     templateUrl: './stock_page.html',
     styleUrl: './stock_page.css',
-    imports: [ReactiveFormsModule, MatCardModule, AgCharts, MatButtonModule, MatIconModule, order_select, DecimalPipe],
+    imports: [ReactiveFormsModule, AgCharts, MatButtonModule, MatIconModule, order_select, DecimalPipe],
 })
 
 export class stocks {
@@ -42,7 +41,6 @@ export class stocks {
     private snack = inject(snack_bar);
     public stock_chart = signal(new stock_chart());
     public order_type = signal("");
-
     // load posts from api call
     load_quote(symbol: string): void 
     {
@@ -121,23 +119,12 @@ export class stocks {
                     }
                 ).subscribe({
                     next: (res) => {
-                        this.snack.openSnackBar(`Succesful buy order, Quantity:${this.stock_amount.value}`, "Close");
+                        this.snack.openSnackBar(`Succesful buy order, Quant:${this.stock_amount.value}`, "Close");
                         // after buy order update balance
                         this.auth.updateBalance();
                     },
                     error: (err) => {
-                        console.log(this.stock_name.value);
-                        if(err.err == undefined)
-                        {
-                            if(this.stock_name.value == "")
-                            {
-                                this.snack.openSnackBar("Missing ticker", "Close");
-                            }
-                            else
-                            {
-                                this.snack.openSnackBar("Incorrect ticker/Invalid buy amount", "Close");
-                            }
-                        }
+                        console.log(err);
                     }
                 });
             }
@@ -157,13 +144,17 @@ export class stocks {
                     }
                 ).subscribe({
                     next: (res) => {
-                        this.snack.openSnackBar(`Succesful sell order, Quantity:${this.stock_amount.value}`, "Close");
+                        this.snack.openSnackBar(`Succesful sell order, Quant:${this.stock_amount.value}`, "Close");
                         this.auth.updateBalance();
                     },
                     error: (err) => {
-                        this.snack.openSnackBar(err.error.error, "Close");
+                        console.log(err);
                     }
                 });
+            }
+            else if(type == 'stop-2')
+            {
+                // TODO when backend has stop order 
             }
             else
             {
