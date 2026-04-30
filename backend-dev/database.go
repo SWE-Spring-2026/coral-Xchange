@@ -21,7 +21,7 @@ func initDatabase(database *sql.DB) {
 		// Users table — the anchor for every other table.
 		`CREATE TABLE IF NOT EXISTS users (
 			id            INTEGER PRIMARY KEY AUTOINCREMENT,
-			name 		  TEXT NOT NULL,
+			name          TEXT NOT NULL,
 			username      TEXT UNIQUE NOT NULL,
 			email         TEXT UNIQUE NOT NULL,
 			password_hash TEXT NOT NULL,
@@ -35,13 +35,33 @@ func initDatabase(database *sql.DB) {
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		)`,
 
-		// Each holding is scoped to a user.
+		// Each row is one purchase lot for one user.
+		// Multiple rows per (user_id, ticker) are intentional — each BUY
+		// creates a new lot so the purchase price is preserved for
+		// realized P&L calculation. purchased_at drives FIFO ordering
+		// when shares are sold.
 		`CREATE TABLE IF NOT EXISTS holdings (
-			id       INTEGER PRIMARY KEY AUTOINCREMENT,
-			user_id  INTEGER NOT NULL,
-			ticker   TEXT    NOT NULL,
-			quantity INTEGER NOT NULL,
-			price    REAL    NOT NULL,
+			id           INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id      INTEGER  NOT NULL,
+			ticker       TEXT     NOT NULL,
+			quantity     INTEGER  NOT NULL,
+			price        REAL     NOT NULL,
+			purchased_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		)`,
+
+		// Each row is one completed SELL trade.
+		// cost_basis   — what the sold shares originally cost (sum across lots consumed)
+		// realized_pnl — profit (positive) or loss (negative) locked in by the sale
+		`CREATE TABLE IF NOT EXISTS trades (
+			id           INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id      INTEGER NOT NULL,
+			ticker       TEXT    NOT NULL,
+			quantity     INTEGER NOT NULL,
+			sell_price   REAL    NOT NULL,
+			cost_basis   REAL    NOT NULL,
+			realized_pnl REAL    NOT NULL,
+			sold_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		)`,
 	}
