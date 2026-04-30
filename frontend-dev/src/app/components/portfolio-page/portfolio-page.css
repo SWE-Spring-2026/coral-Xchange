@@ -1,5 +1,43 @@
-ag-grid-angular
-{
-    width: 50%;
-    height: 500px;
+/* Full page height support (important for AG Grid) */
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+/* Main layout container */
+.portfolio-layout {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  height: 70vh; /* adjust as needed */
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+/* AG Grid section */
+.ag-grid-wrapper {
+  flex: 2;              /* takes more space than chart */
+  min-width: 0;         /* prevents overflow issues */
+  height: 100%;
+}
+
+/* Chart section */
+.chart-wrapper {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+/* IMPORTANT: AG Grid must fill wrapper */
+ag-grid-angular {
+  width: 100%;
+  height: 100%;
 }
